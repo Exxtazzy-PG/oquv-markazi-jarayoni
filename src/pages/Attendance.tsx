@@ -1,33 +1,38 @@
 import { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useData } from '@/contexts/DataContext';
-import { ArrowLeft, Save, Download, CheckCircle, XCircle, AlertCircle, MoreVertical } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
+import { ArrowLeft, Save, Download, CheckCircle, XCircle, AlertCircle, MoreVertical, Plus, X, Pencil } from 'lucide-react';
 
 type AttStatus = 'present' | 'absent' | 'excused';
 
 const Attendance = () => {
   const { groupId } = useParams<{ groupId: string }>();
   const navigate = useNavigate();
-  const { groups, students, teachers, attendance, setAttendance } = useData();
+  const { groups, students, teachers, attendance, setAttendance, updateGroup, addStudent } = useData();
   const [tab, setTab] = useState<'jurnal' | 'statistika'>('jurnal');
   const [month, setMonth] = useState(new Date().getMonth());
   const [year, setYear] = useState(new Date().getFullYear());
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showAddStudentModal, setShowAddStudentModal] = useState(false);
+  const [newStudentName, setNewStudentName] = useState('');
+  const [newStudentPhone, setNewStudentPhone] = useState('');
 
   const group = groups.find(g => g.id === groupId);
   const groupStudents = students.filter(s => s.groupId === groupId);
   const teacher = teachers.find(t => t.id === group?.teacherId);
 
+  const [editGroupData, setEditGroupData] = useState({ name: group?.name || '', teacherId: group?.teacherId || '', time: group?.time || '' });
+
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const monthName = new Date(year, month).toLocaleDateString('uz-UZ', { month: 'long' });
 
-  // Build local attendance state
   const [localAtt, setLocalAtt] = useState<Record<string, AttStatus>>(() => {
     const map: Record<string, AttStatus> = {};
     attendance.filter(a => a.groupId === groupId).forEach(a => {
       map[`${a.studentId}-${a.date}`] = a.status;
     });
-    // Pre-fill with random data for demo
     groupStudents.forEach(s => {
       for (let d = 1; d <= daysInMonth; d++) {
         const date = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
@@ -55,6 +60,23 @@ const Attendance = () => {
       return { groupId: groupId!, studentId, date, status };
     });
     setAttendance(records);
+    toast({ title: "Saqlandi", description: "Davomat ma'lumotlari muvaffaqiyatli saqlandi" });
+  };
+
+  const handleEditGroup = () => {
+    if (!groupId) return;
+    updateGroup(groupId, { name: editGroupData.name, teacherId: editGroupData.teacherId, time: editGroupData.time });
+    setShowEditModal(false);
+    toast({ title: "Guruh tahrirlandi", description: `${editGroupData.name} yangilandi` });
+  };
+
+  const handleAddStudentToGroup = () => {
+    if (!newStudentName || !groupId) return;
+    addStudent({ name: newStudentName, phone: newStudentPhone, groupId, balance: 0, status: 'faol', lastAction: 'Bugun', lastActionType: "YARATILDI", photo: '' });
+    setNewStudentName('');
+    setNewStudentPhone('');
+    setShowAddStudentModal(false);
+    toast({ title: "Talaba qo'shildi", description: `${newStudentName} guruhga qo'shildi` });
   };
 
   const getStudentTotal = (studentId: string) => {
@@ -66,7 +88,6 @@ const Attendance = () => {
     return total;
   };
 
-  // Show only ~26 days for display purposes
   const displayDays = Array.from({ length: Math.min(daysInMonth, 26) }, (_, i) => i + 1);
 
   if (!group) return <div className="p-8 text-center text-muted-foreground">Guruh topilmadi</div>;
@@ -75,6 +96,7 @@ const Attendance = () => {
     <div className="animate-fade-in">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
+          <button onClick={() => navigate(-1)} className="p-2 rounded-lg hover:bg-muted text-muted-foreground"><ArrowLeft className="h-5 w-5" /></button>
           <h1 className="text-xl font-bold text-foreground">Davomat Jurnali</h1>
           <div className="text-sm text-primary font-semibold">{group.name} ({group.time})</div>
           <div className="flex items-center gap-2">
@@ -101,9 +123,16 @@ const Attendance = () => {
           <div className="relative">
             <button onClick={() => setMenuOpen(!menuOpen)} className="p-2 rounded-lg border border-border hover:bg-muted"><MoreVertical className="h-4 w-4" /></button>
             {menuOpen && (
-              <div className="absolute right-0 top-10 bg-card border border-border rounded-lg shadow-lg py-1 z-10 w-40">
-                <button onClick={() => { navigate(-1); setMenuOpen(false); }} className="w-full text-left px-4 py-2 text-sm hover:bg-muted text-foreground">Orqaga</button>
-                <button onClick={() => setMenuOpen(false)} className="w-full text-left px-4 py-2 text-sm hover:bg-muted text-foreground">Tahrirlash</button>
+              <div className="absolute right-0 top-10 bg-card border border-border rounded-lg shadow-lg py-1 z-10 w-48">
+                <button onClick={() => { navigate(-1); setMenuOpen(false); }} className="w-full text-left px-4 py-2 text-sm hover:bg-muted text-foreground flex items-center gap-2">
+                  <ArrowLeft className="h-3.5 w-3.5" /> Orqaga
+                </button>
+                <button onClick={() => { setShowEditModal(true); setMenuOpen(false); }} className="w-full text-left px-4 py-2 text-sm hover:bg-muted text-foreground flex items-center gap-2">
+                  <Pencil className="h-3.5 w-3.5" /> Tahrirlash
+                </button>
+                <button onClick={() => { setShowAddStudentModal(true); setMenuOpen(false); }} className="w-full text-left px-4 py-2 text-sm hover:bg-muted text-foreground flex items-center gap-2">
+                  <Plus className="h-3.5 w-3.5" /> Talaba qo'shish
+                </button>
               </div>
             )}
           </div>
@@ -151,9 +180,7 @@ const Attendance = () => {
                     const isOff = dayOfWeek === 0;
                     return (
                       <td key={d} className={`p-1 text-center ${isOff ? 'bg-muted/50' : ''}`}>
-                        {isOff ? (
-                          <span className="w-6 h-6 inline-block" />
-                        ) : (
+                        {isOff ? <span className="w-6 h-6 inline-block" /> : (
                           <button onClick={() => toggleStatus(student.id, d)} className="w-6 h-6 inline-flex items-center justify-center">
                             {status === 'present' && <CheckCircle className="h-5 w-5 text-success" />}
                             {status === 'absent' && <XCircle className="h-5 w-5 text-destructive" />}
@@ -203,6 +230,63 @@ const Attendance = () => {
                 </div>
               );
             })}
+          </div>
+        </div>
+      )}
+
+      {/* Edit Group Modal */}
+      {showEditModal && (
+        <div className="fixed inset-0 bg-foreground/50 flex items-center justify-center z-50" onClick={() => setShowEditModal(false)}>
+          <div className="bg-card rounded-2xl p-6 w-full max-w-md shadow-xl border border-border" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-bold text-foreground">Guruhni tahrirlash</h2>
+              <button onClick={() => setShowEditModal(false)} className="text-muted-foreground hover:text-foreground"><X className="h-5 w-5" /></button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium text-foreground block mb-1">Guruh nomi</label>
+                <input value={editGroupData.name} onChange={e => setEditGroupData(p => ({ ...p, name: e.target.value }))}
+                  className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm" />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground block mb-1">O'qituvchi</label>
+                <select value={editGroupData.teacherId} onChange={e => setEditGroupData(p => ({ ...p, teacherId: e.target.value }))}
+                  className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm">
+                  {teachers.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground block mb-1">Vaqt</label>
+                <input value={editGroupData.time} onChange={e => setEditGroupData(p => ({ ...p, time: e.target.value }))}
+                  className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm" />
+              </div>
+              <button onClick={handleEditGroup} className="w-full bg-primary text-primary-foreground py-2.5 rounded-lg font-medium hover:opacity-90">Saqlash</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Student Modal */}
+      {showAddStudentModal && (
+        <div className="fixed inset-0 bg-foreground/50 flex items-center justify-center z-50" onClick={() => setShowAddStudentModal(false)}>
+          <div className="bg-card rounded-2xl p-6 w-full max-w-md shadow-xl border border-border" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-bold text-foreground">Guruhga talaba qo'shish</h2>
+              <button onClick={() => setShowAddStudentModal(false)} className="text-muted-foreground hover:text-foreground"><X className="h-5 w-5" /></button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium text-foreground block mb-1">Ism</label>
+                <input value={newStudentName} onChange={e => setNewStudentName(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm" placeholder="To'liq ism" />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground block mb-1">Telefon</label>
+                <input value={newStudentPhone} onChange={e => setNewStudentPhone(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm" placeholder="+998" />
+              </div>
+              <button onClick={handleAddStudentToGroup} className="w-full bg-primary text-primary-foreground py-2.5 rounded-lg font-medium hover:opacity-90">Qo'shish</button>
+            </div>
           </div>
         </div>
       )}

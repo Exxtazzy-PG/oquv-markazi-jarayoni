@@ -1,12 +1,17 @@
 import { useState } from 'react';
 import { useData } from '@/contexts/DataContext';
-import { Users, CheckCircle, Clock, XCircle, Search, Calendar, Download, Filter } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
+import { Users, CheckCircle, Clock, XCircle, Search, Calendar, Download, Pencil, X } from 'lucide-react';
 
 const TeacherAttendance = () => {
   const { teachers, groups, teacherAttendance, setTeacherAttendanceRecord } = useData();
   const [statusFilter, setStatusFilter] = useState<'all' | 'kelgan' | 'kelmadi'>('all');
   const [search, setSearch] = useState('');
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [editRecord, setEditRecord] = useState<{
+    teacherId: string; arrivedAt: string; leftAt: string;
+    status: 'kelgan' | 'kechikkan' | 'kelmagan'; workHours: number; note: string;
+  } | null>(null);
 
   const todayRecords = teacherAttendance.filter(r => r.date === selectedDate);
   const getRecord = (teacherId: string) => todayRecords.find(r => r.teacherId === teacherId);
@@ -24,8 +29,24 @@ const TeacherAttendance = () => {
 
   const getTeacherGroups = (teacherId: string) => groups.filter(g => g.teacherId === teacherId);
 
+  const handleEditSave = () => {
+    if (!editRecord) return;
+    setTeacherAttendanceRecord({
+      teacherId: editRecord.teacherId,
+      date: selectedDate,
+      arrivedAt: editRecord.arrivedAt,
+      leftAt: editRecord.leftAt,
+      status: editRecord.status,
+      workHours: editRecord.workHours,
+      note: editRecord.note,
+    });
+    const name = teachers.find(t => t.id === editRecord.teacherId)?.name;
+    toast({ title: "Davomat yangilandi", description: `${name} uchun davomat saqlandi` });
+    setEditRecord(null);
+  };
+
   const stats = [
-    { label: 'Jami ustozlar', value: teachers.length, sub: '+2 yangi', icon: Users, color: 'text-primary', bg: '' },
+    { label: 'Jami ustozlar', value: teachers.length, sub: `${teachers.length} nafar`, icon: Users, color: 'text-primary', bg: '' },
     { label: 'Kelganlar', value: kelganlar, sub: `${teachers.length > 0 ? Math.round((kelganlar / teachers.length) * 100) : 0}%`, icon: CheckCircle, color: 'text-success', bg: 'bg-success/5 border-success/20' },
     { label: 'Kechikkanlar', value: kechikkanlar, sub: `${teachers.length > 0 ? Math.round((kechikkanlar / teachers.length) * 100) : 0}%`, icon: Clock, color: 'text-warning', bg: 'bg-warning/5 border-warning/20' },
     { label: 'Kelmaganlar', value: kelmaganlar, sub: `${teachers.length > 0 ? Math.round((kelmaganlar / teachers.length) * 100) : 0}%`, icon: XCircle, color: 'text-destructive', bg: 'bg-destructive/5 border-destructive/20' },
@@ -77,7 +98,7 @@ const TeacherAttendance = () => {
         <table className="w-full">
           <thead>
             <tr className="border-b border-border">
-              {['USTOZ', 'FAN', 'GURUHLAR', 'JADVAL', 'KELGAN / KETGAN', 'HOLATI', 'ISH SOATI', 'IZOH'].map(h => (
+              {['USTOZ', 'FAN', 'GURUHLAR', 'JADVAL', 'KELGAN / KETGAN', 'HOLATI', 'ISH SOATI', 'IZOH', 'AMALLAR'].map(h => (
                 <th key={h} className="text-left text-xs font-semibold text-muted-foreground tracking-wider p-4">{h}</th>
               ))}
             </tr>
@@ -126,7 +147,19 @@ const TeacherAttendance = () => {
                     </span>
                   </td>
                   <td className="p-4 text-sm text-foreground">{record?.workHours?.toFixed(2) || '0.00'} s.</td>
-                  <td className="p-4 text-sm text-muted-foreground italic">{record?.note || '-'}</td>
+                  <td className="p-4 text-sm text-muted-foreground italic max-w-[120px] truncate">{record?.note || '-'}</td>
+                  <td className="p-4">
+                    <button onClick={() => setEditRecord({
+                      teacherId: teacher.id,
+                      arrivedAt: record?.arrivedAt || '08:00',
+                      leftAt: record?.leftAt || '17:00',
+                      status: record?.status || 'kelgan',
+                      workHours: record?.workHours || 0,
+                      note: record?.note || '',
+                    })} className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
+                      <Pencil className="h-4 w-4" />
+                    </button>
+                  </td>
                 </tr>
               );
             })}
@@ -156,6 +189,52 @@ const TeacherAttendance = () => {
           })}
         </div>
       </div>
+
+      {/* Edit Modal */}
+      {editRecord && (
+        <div className="fixed inset-0 bg-foreground/50 flex items-center justify-center z-50" onClick={() => setEditRecord(null)}>
+          <div className="bg-card rounded-2xl p-6 w-full max-w-md shadow-xl border border-border" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-bold text-foreground">Davomatni tahrirlash</h2>
+              <button onClick={() => setEditRecord(null)} className="text-muted-foreground hover:text-foreground"><X className="h-5 w-5" /></button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium text-foreground block mb-1">Holati</label>
+                <select value={editRecord.status} onChange={e => setEditRecord(p => p ? { ...p, status: e.target.value as any } : p)}
+                  className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm">
+                  <option value="kelgan">Kelgan</option>
+                  <option value="kechikkan">Kechikkan</option>
+                  <option value="kelmagan">Kelmagan</option>
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-sm font-medium text-foreground block mb-1">Kelgan vaqti</label>
+                  <input type="time" value={editRecord.arrivedAt} onChange={e => setEditRecord(p => p ? { ...p, arrivedAt: e.target.value } : p)}
+                    className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm" />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-foreground block mb-1">Ketgan vaqti</label>
+                  <input type="time" value={editRecord.leftAt} onChange={e => setEditRecord(p => p ? { ...p, leftAt: e.target.value } : p)}
+                    className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm" />
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground block mb-1">Ish soati</label>
+                <input type="number" value={editRecord.workHours} onChange={e => setEditRecord(p => p ? { ...p, workHours: Number(e.target.value) } : p)}
+                  className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm" />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground block mb-1">Izoh</label>
+                <textarea value={editRecord.note} onChange={e => setEditRecord(p => p ? { ...p, note: e.target.value } : p)}
+                  className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm resize-none" rows={2} />
+              </div>
+              <button onClick={handleEditSave} className="w-full bg-primary text-primary-foreground py-2.5 rounded-lg font-medium hover:opacity-90">Saqlash</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

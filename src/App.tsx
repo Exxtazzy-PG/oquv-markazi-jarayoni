@@ -13,6 +13,7 @@ import Teachers from "./pages/Teachers";
 import Groups from "./pages/Groups";
 import Attendance from "./pages/Attendance";
 import TeacherAttendance from "./pages/TeacherAttendance";
+import TeacherProfile from "./pages/TeacherProfile";
 import SettingsPage from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
@@ -32,6 +33,7 @@ function AppRoutes() {
           <Route path="/teachers" element={<Teachers />} />
           <Route path="/groups" element={<Groups />} />
           <Route path="/attendance/:groupId" element={<Attendance />} />
+          <Route path="/teacher/:teacherId" element={<TeacherProfile />} />
           <Route path="/teacher-attendance" element={<TeacherAttendance />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="*" element={<NotFound />} />
