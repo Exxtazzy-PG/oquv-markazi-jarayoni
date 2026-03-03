@@ -1,13 +1,17 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useData } from '@/contexts/DataContext';
+import { toast } from '@/hooks/use-toast';
 import { Search, Plus, Calendar, Pencil, X, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const Teachers = () => {
-  const { teachers, groups, addTeacher } = useData();
+  const { teachers, groups, addTeacher, updateTeacher } = useData();
+  const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedTeacher, setSelectedTeacher] = useState<string | null>(null);
   const [showSchedule, setShowSchedule] = useState(false);
+  const [editTeacher, setEditTeacher] = useState<{ id: string; name: string; phone: string; subject: string } | null>(null);
   const [page, setPage] = useState(1);
   const perPage = 10;
 
@@ -29,6 +33,19 @@ const Teachers = () => {
     });
     setNewTeacher({ name: '', phone: '', subject: '' });
     setShowAddModal(false);
+    toast({ title: "Ustoz qo'shildi", description: `${newTeacher.name} muvaffaqiyatli qo'shildi` });
+  };
+
+  const handleEditSave = () => {
+    if (!editTeacher) return;
+    updateTeacher(editTeacher.id, {
+      name: editTeacher.name,
+      phone: editTeacher.phone,
+      subject: editTeacher.subject,
+      initials: editTeacher.name.split(' ').map(n => n[0]).join(''),
+    });
+    toast({ title: "Ustoz tahrirlandi", description: `${editTeacher.name} ma'lumotlari yangilandi` });
+    setEditTeacher(null);
   };
 
   return (
@@ -45,10 +62,6 @@ const Teachers = () => {
               <input value={search} onChange={e => setSearch(e.target.value)}
                 className="pl-10 pr-4 py-2 rounded-lg border border-input bg-card text-foreground text-sm w-64 focus:outline-none focus:ring-2 focus:ring-ring"
                 placeholder="Ism yoki fan bo'yicha qidirish..." />
-            </div>
-            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-card border border-border text-sm text-muted-foreground">
-              <span>👁 {teachers.length}</span>
-              <span>👥 {groups.length}</span>
             </div>
             <button onClick={() => setShowAddModal(true)} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90">
               <Plus className="h-4 w-4" /> Ustoz qo'shish
@@ -73,7 +86,7 @@ const Teachers = () => {
                 return (
                   <tr key={teacher.id} className="border-b border-border last:border-0 hover:bg-muted/50 transition-colors">
                     <td className="p-4">
-                      <button onClick={() => { setSelectedTeacher(teacher.id); setShowSchedule(true); }} className="flex items-center gap-3 text-left">
+                      <button onClick={() => navigate(`/teacher/${teacher.id}`)} className="flex items-center gap-3 text-left">
                         <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary">
                           {teacher.initials}
                         </div>
@@ -103,7 +116,7 @@ const Teachers = () => {
                       <button onClick={() => { setSelectedTeacher(teacher.id); setShowSchedule(true); }} className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground">
                         <Calendar className="h-4 w-4" />
                       </button>
-                      <button className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground">
+                      <button onClick={() => setEditTeacher({ id: teacher.id, name: teacher.name, phone: teacher.phone, subject: teacher.subject })} className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground">
                         <Pencil className="h-4 w-4" />
                       </button>
                     </td>
@@ -142,9 +155,7 @@ const Teachers = () => {
             <div className="space-y-3">
               {selectedGroups.map(g => (
                 <div key={g.id} className="p-3 rounded-lg border-l-4 border-primary bg-muted/50">
-                  <div className="flex justify-between items-start">
-                    <span className="text-xs font-semibold text-primary">{g.time}</span>
-                  </div>
+                  <span className="text-xs font-semibold text-primary">{g.time}</span>
                   <p className="font-medium text-foreground mt-1">{g.name}</p>
                   <p className="text-xs text-muted-foreground">Guruh: #{g.id.replace('g', '')}</p>
                 </div>
@@ -155,6 +166,7 @@ const Teachers = () => {
         </div>
       )}
 
+      {/* Add Modal */}
       {showAddModal && (
         <div className="fixed inset-0 bg-foreground/50 flex items-center justify-center z-50" onClick={() => setShowAddModal(false)}>
           <div className="bg-card rounded-2xl p-6 w-full max-w-md shadow-xl border border-border" onClick={e => e.stopPropagation()}>
@@ -179,6 +191,36 @@ const Teachers = () => {
                   className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm" placeholder="Yo'nalish" />
               </div>
               <button onClick={handleAdd} className="w-full bg-primary text-primary-foreground py-2.5 rounded-lg font-medium hover:opacity-90 transition-opacity">Qo'shish</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Modal */}
+      {editTeacher && (
+        <div className="fixed inset-0 bg-foreground/50 flex items-center justify-center z-50" onClick={() => setEditTeacher(null)}>
+          <div className="bg-card rounded-2xl p-6 w-full max-w-md shadow-xl border border-border" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-bold text-foreground">Ustozni tahrirlash</h2>
+              <button onClick={() => setEditTeacher(null)} className="text-muted-foreground hover:text-foreground"><X className="h-5 w-5" /></button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium text-foreground block mb-1">Ism</label>
+                <input value={editTeacher.name} onChange={e => setEditTeacher(p => p ? { ...p, name: e.target.value } : p)}
+                  className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm" />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground block mb-1">Telefon</label>
+                <input value={editTeacher.phone} onChange={e => setEditTeacher(p => p ? { ...p, phone: e.target.value } : p)}
+                  className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm" />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground block mb-1">Fan</label>
+                <input value={editTeacher.subject} onChange={e => setEditTeacher(p => p ? { ...p, subject: e.target.value } : p)}
+                  className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm" />
+              </div>
+              <button onClick={handleEditSave} className="w-full bg-primary text-primary-foreground py-2.5 rounded-lg font-medium hover:opacity-90 transition-opacity">Saqlash</button>
             </div>
           </div>
         </div>

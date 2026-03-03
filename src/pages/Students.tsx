@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useData } from '@/contexts/DataContext';
-import { Users, CheckCircle, AlertCircle, Archive, Search, Plus, Download, MoreVertical, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
+import { Users, CheckCircle, AlertCircle, Archive, Search, Plus, Download, MoreVertical, ChevronLeft, ChevronRight, X, Pencil, Trash2 } from 'lucide-react';
 
 const Students = () => {
   const { students, groups, addStudent, updateStudent, deleteStudent, getCurrencySymbol } = useData();
@@ -11,9 +12,21 @@ const Students = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingBalance, setEditingBalance] = useState<string | null>(null);
   const [balanceInput, setBalanceInput] = useState('');
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [editStudent, setEditStudent] = useState<{ id: string; name: string; phone: string; groupId: string } | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const perPage = 10;
 
   const [newStudent, setNewStudent] = useState({ name: '', phone: '', groupId: groups[0]?.id || '', balance: 0 });
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setOpenMenu(null);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
 
   const filtered = students.filter(s => {
     const matchSearch = s.name.toLowerCase().includes(search.toLowerCase()) || s.id.includes(search) || s.phone.includes(search);
@@ -40,20 +53,30 @@ const Students = () => {
 
   const handleAddStudent = () => {
     if (!newStudent.name) return;
-    addStudent({
-      ...newStudent,
-      status: 'faol',
-      lastAction: 'Bugun',
-      lastActionType: "YARATILDI",
-      photo: '',
-    });
+    addStudent({ ...newStudent, status: 'faol', lastAction: 'Bugun', lastActionType: "YARATILDI", photo: '' });
     setNewStudent({ name: '', phone: '', groupId: groups[0]?.id || '', balance: 0 });
     setShowAddModal(false);
+    toast({ title: "Talaba qo'shildi", description: `${newStudent.name} muvaffaqiyatli qo'shildi` });
   };
 
   const handleBalanceSave = (studentId: string) => {
     updateStudent(studentId, { balance: Number(balanceInput) || 0 });
     setEditingBalance(null);
+    toast({ title: "Balans yangilandi" });
+  };
+
+  const handleEditSave = () => {
+    if (!editStudent) return;
+    updateStudent(editStudent.id, { name: editStudent.name, phone: editStudent.phone, groupId: editStudent.groupId });
+    toast({ title: "Talaba tahrirlandi", description: `${editStudent.name} ma'lumotlari yangilandi` });
+    setEditStudent(null);
+  };
+
+  const handleDelete = (id: string) => {
+    const name = students.find(s => s.id === id)?.name;
+    deleteStudent(id);
+    setDeleteConfirm(null);
+    toast({ title: "Talaba o'chirildi", description: `${name} ro'yxatdan o'chirildi`, variant: "destructive" });
   };
 
   const handleExport = () => {
@@ -64,6 +87,7 @@ const Students = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url; a.download = 'talabalar.csv'; a.click();
+    toast({ title: "Export tayyor", description: "talabalar.csv yuklab olindi" });
   };
 
   const stats = [
@@ -166,9 +190,25 @@ const Students = () => {
                   <p className="text-xs text-muted-foreground uppercase tracking-wider">{student.lastActionType}</p>
                 </td>
                 <td className="p-4">
-                  <button onClick={() => deleteStudent(student.id)} className="text-muted-foreground hover:text-destructive transition-colors">
-                    <MoreVertical className="h-4 w-4" />
-                  </button>
+                  <div className="relative" ref={openMenu === student.id ? menuRef : undefined}>
+                    <button onClick={() => setOpenMenu(openMenu === student.id ? null : student.id)} className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded-lg hover:bg-muted">
+                      <MoreVertical className="h-4 w-4" />
+                    </button>
+                    {openMenu === student.id && (
+                      <div className="absolute right-0 top-8 bg-card border border-border rounded-lg shadow-lg py-1 z-20 w-44">
+                        <button onClick={() => {
+                          setEditStudent({ id: student.id, name: student.name, phone: student.phone, groupId: student.groupId });
+                          setOpenMenu(null);
+                        }} className="w-full text-left px-4 py-2 text-sm hover:bg-muted text-foreground flex items-center gap-2">
+                          <Pencil className="h-3.5 w-3.5" /> Tahrirlash
+                        </button>
+                        <button onClick={() => { setDeleteConfirm(student.id); setOpenMenu(null); }}
+                          className="w-full text-left px-4 py-2 text-sm hover:bg-destructive/10 text-destructive flex items-center gap-2">
+                          <Trash2 className="h-3.5 w-3.5" /> O'chirib yuborish
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}
@@ -177,28 +217,20 @@ const Students = () => {
         <div className="p-4 flex items-center justify-between border-t border-border">
           <p className="text-sm text-muted-foreground">{filtered.length} talabadan {(page - 1) * perPage + 1}-{Math.min(page * perPage, filtered.length)} oralig'i ko'rsatilmoqda</p>
           <div className="flex items-center gap-1">
-            <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="p-2 rounded-lg hover:bg-muted disabled:opacity-30">
-              <ChevronLeft className="h-4 w-4" />
-            </button>
+            <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="p-2 rounded-lg hover:bg-muted disabled:opacity-30"><ChevronLeft className="h-4 w-4" /></button>
             {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => i + 1).map(p => (
-              <button key={p} onClick={() => setPage(p)}
-                className={`h-8 w-8 rounded-lg text-sm font-medium ${page === p ? 'bg-primary text-primary-foreground' : 'text-foreground hover:bg-muted'}`}>
-                {p}
-              </button>
+              <button key={p} onClick={() => setPage(p)} className={`h-8 w-8 rounded-lg text-sm font-medium ${page === p ? 'bg-primary text-primary-foreground' : 'text-foreground hover:bg-muted'}`}>{p}</button>
             ))}
             {totalPages > 5 && <span className="px-1 text-muted-foreground">...</span>}
             {totalPages > 5 && (
-              <button onClick={() => setPage(totalPages)} className={`h-8 w-8 rounded-lg text-sm font-medium ${page === totalPages ? 'bg-primary text-primary-foreground' : 'text-foreground hover:bg-muted'}`}>
-                {totalPages}
-              </button>
+              <button onClick={() => setPage(totalPages)} className={`h-8 w-8 rounded-lg text-sm font-medium ${page === totalPages ? 'bg-primary text-primary-foreground' : 'text-foreground hover:bg-muted'}`}>{totalPages}</button>
             )}
-            <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="p-2 rounded-lg hover:bg-muted disabled:opacity-30">
-              <ChevronRight className="h-4 w-4" />
-            </button>
+            <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="p-2 rounded-lg hover:bg-muted disabled:opacity-30"><ChevronRight className="h-4 w-4" /></button>
           </div>
         </div>
       </div>
 
+      {/* Add Modal */}
       {showAddModal && (
         <div className="fixed inset-0 bg-foreground/50 flex items-center justify-center z-50" onClick={() => setShowAddModal(false)}>
           <div className="bg-card rounded-2xl p-6 w-full max-w-md shadow-xl border border-border" onClick={e => e.stopPropagation()}>
@@ -224,9 +256,53 @@ const Students = () => {
                   {groups.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
                 </select>
               </div>
-              <button onClick={handleAddStudent} className="w-full bg-primary text-primary-foreground py-2.5 rounded-lg font-medium hover:opacity-90 transition-opacity">
-                Qo'shish
-              </button>
+              <button onClick={handleAddStudent} className="w-full bg-primary text-primary-foreground py-2.5 rounded-lg font-medium hover:opacity-90 transition-opacity">Qo'shish</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Modal */}
+      {editStudent && (
+        <div className="fixed inset-0 bg-foreground/50 flex items-center justify-center z-50" onClick={() => setEditStudent(null)}>
+          <div className="bg-card rounded-2xl p-6 w-full max-w-md shadow-xl border border-border" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-bold text-foreground">Talabani tahrirlash</h2>
+              <button onClick={() => setEditStudent(null)} className="text-muted-foreground hover:text-foreground"><X className="h-5 w-5" /></button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium text-foreground block mb-1">Ism</label>
+                <input value={editStudent.name} onChange={e => setEditStudent(p => p ? { ...p, name: e.target.value } : p)}
+                  className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm" />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground block mb-1">Telefon</label>
+                <input value={editStudent.phone} onChange={e => setEditStudent(p => p ? { ...p, phone: e.target.value } : p)}
+                  className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm" />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground block mb-1">Guruh</label>
+                <select value={editStudent.groupId} onChange={e => setEditStudent(p => p ? { ...p, groupId: e.target.value } : p)}
+                  className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm">
+                  {groups.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
+                </select>
+              </div>
+              <button onClick={handleEditSave} className="w-full bg-primary text-primary-foreground py-2.5 rounded-lg font-medium hover:opacity-90 transition-opacity">Saqlash</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirm */}
+      {deleteConfirm && (
+        <div className="fixed inset-0 bg-foreground/50 flex items-center justify-center z-50" onClick={() => setDeleteConfirm(null)}>
+          <div className="bg-card rounded-2xl p-6 w-full max-w-sm shadow-xl border border-border" onClick={e => e.stopPropagation()}>
+            <h2 className="text-lg font-bold text-foreground mb-2">O'chirishni tasdiqlang</h2>
+            <p className="text-sm text-muted-foreground mb-6">Bu talabani o'chirib yuborishni xohlaysizmi? Bu amalni qaytarib bo'lmaydi.</p>
+            <div className="flex gap-3">
+              <button onClick={() => setDeleteConfirm(null)} className="flex-1 py-2 rounded-lg border border-border text-foreground text-sm font-medium hover:bg-muted">Bekor qilish</button>
+              <button onClick={() => handleDelete(deleteConfirm)} className="flex-1 py-2 rounded-lg bg-destructive text-destructive-foreground text-sm font-medium hover:opacity-90">O'chirish</button>
             </div>
           </div>
         </div>
