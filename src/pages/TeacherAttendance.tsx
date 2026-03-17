@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useData } from '@/contexts/DataContext';
 import { toast } from '@/hooks/use-toast';
 import { Users, CheckCircle, Clock, XCircle, Search, Calendar, Download, Pencil, X } from 'lucide-react';
@@ -13,35 +13,90 @@ const TeacherAttendance = () => {
     status: 'kelgan' | 'kechikkan' | 'kelmagan'; workHours: number; note: string;
   } | null>(null);
 
-  const todayRecords = teacherAttendance.filter(r => r.date === selectedDate);
-  const getRecord = (teacherId: string) => todayRecords.find(r => r.teacherId === teacherId);
-
-  const filtered = teachers.filter(t => {
-    const record = getRecord(t.id);
-    const matchSearch = t.name.toLowerCase().includes(search.toLowerCase());
-    const matchStatus = statusFilter === 'all' || (statusFilter === 'kelgan' ? record?.status === 'kelgan' || record?.status === 'kechikkan' : record?.status === 'kelmagan');
-    return matchSearch && matchStatus;
-  });
-
-  const kelganlar = todayRecords.filter(r => r.status === 'kelgan').length;
-  const kechikkanlar = todayRecords.filter(r => r.status === 'kechikkan').length;
-  const kelmaganlar = todayRecords.filter(r => r.status === 'kelmagan').length;
+  const recordsMap = useMemo(() => {
+    return new Map(teacherAttendance.filter(record => record.date === selectedDate).map(record => [record.teacherId, record]));
+  }, [selectedDate, teacherAttendance]);
 
   const getTeacherGroups = (teacherId: string) => groups.filter(g => g.teacherId === teacherId);
 
+  const getRecord = (teacherId: string) => {
+    const saved = recordsMap.get(teacherId);
+    if (saved) return saved;
+
+    const teacher = teachers.find(item => item.id === teacherId);
+    if (!teacher) {
+      return {
+        teacherId,
+        date: selectedDate,
+        arrivedAt: '--:--',
+        leftAt: '--:--',
+        status: 'kelmagan' as const,
+        workHours: 0,
+        note: '',
+      };
+    }
+
+    if (teacher.status === 'dam_olishda') {
+      return {
+        teacherId,
+        date: selectedDate,
+        arrivedAt: '--:--',
+        leftAt: '--:--',
+        status: 'kelmagan' as const,
+        workHours: 0,
+        note: 'Dam olishda',
+      };
+    }
+
+    return {
+      teacherId,
+      date: selectedDate,
+      arrivedAt: '08:00',
+      leftAt: '17:00',
+      status: 'kelgan' as const,
+      workHours: 9,
+      note: 'Avtomatik holat',
+    };
+  };
+
+  const allRecords = teachers.map(teacher => ({ teacher, record: getRecord(teacher.id) }));
+
+  const filtered = allRecords.filter(({ teacher, record }) => {
+    const matchSearch = teacher.name.toLowerCase().includes(search.toLowerCase());
+    const matchStatus = statusFilter === 'all' || (statusFilter === 'kelgan'
+      ? record.status === 'kelgan' || record.status === 'kechikkan'
+      : record.status === 'kelmagan');
+    return matchSearch && matchStatus;
+  });
+
+  const kelganlar = allRecords.filter(({ record }) => record.status === 'kelgan').length;
+  const kechikkanlar = allRecords.filter(({ record }) => record.status === 'kechikkan').length;
+  const kelmaganlar = allRecords.filter(({ record }) => record.status === 'kelmagan').length;
+
   const handleEditSave = () => {
     if (!editRecord) return;
+
+    const nextRecord = editRecord.status === 'kelmagan'
+      ? {
+          ...editRecord,
+          arrivedAt: '--:--',
+          leftAt: '--:--',
+          workHours: 0,
+        }
+      : editRecord;
+
     setTeacherAttendanceRecord({
-      teacherId: editRecord.teacherId,
+      teacherId: nextRecord.teacherId,
       date: selectedDate,
-      arrivedAt: editRecord.arrivedAt,
-      leftAt: editRecord.leftAt,
-      status: editRecord.status,
-      workHours: editRecord.workHours,
-      note: editRecord.note,
+      arrivedAt: nextRecord.arrivedAt,
+      leftAt: nextRecord.leftAt,
+      status: nextRecord.status,
+      workHours: nextRecord.workHours,
+      note: nextRecord.note,
     });
-    const name = teachers.find(t => t.id === editRecord.teacherId)?.name;
-    toast({ title: "Davomat yangilandi", description: `${name} uchun davomat saqlandi` });
+
+    const name = teachers.find(t => t.id === nextRecord.teacherId)?.name;
+    toast({ title: 'Davomat yangilandi', description: `${name} uchun ${selectedDate} sanasi saqlandi` });
     setEditRecord(null);
   };
 
@@ -104,8 +159,7 @@ const TeacherAttendance = () => {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((teacher) => {
-              const record = getRecord(teacher.id);
+            {filtered.map(({ teacher, record }) => {
               const tGroups = getTeacherGroups(teacher.id);
               return (
                 <tr key={teacher.id} className="border-b border-border last:border-0 hover:bg-muted/50 transition-colors">
@@ -129,33 +183,33 @@ const TeacherAttendance = () => {
                   </td>
                   <td className="p-4 text-sm text-foreground">{tGroups[0]?.time || '-'}</td>
                   <td className="p-4">
-                    <p className={`text-sm font-medium ${record?.status === 'kelmagan' ? 'text-muted-foreground' : 'text-success'}`}>
-                      {record?.arrivedAt || '--:--'}
+                    <p className={`text-sm font-medium ${record.status === 'kelmagan' ? 'text-muted-foreground' : 'text-success'}`}>
+                      {record.arrivedAt || '--:--'}
                     </p>
-                    <p className="text-xs text-muted-foreground">{record?.leftAt || '--:--'}</p>
+                    <p className="text-xs text-muted-foreground">{record.leftAt || '--:--'}</p>
                   </td>
                   <td className="p-4">
                     <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full ${
-                      record?.status === 'kelgan' ? 'bg-success/10 text-success' :
-                      record?.status === 'kechikkan' ? 'bg-warning/10 text-warning' :
+                      record.status === 'kelgan' ? 'bg-success/10 text-success' :
+                      record.status === 'kechikkan' ? 'bg-warning/10 text-warning' :
                       'bg-destructive/10 text-destructive'
                     }`}>
                       <span className={`w-1.5 h-1.5 rounded-full ${
-                        record?.status === 'kelgan' ? 'bg-success' : record?.status === 'kechikkan' ? 'bg-warning' : 'bg-destructive'
+                        record.status === 'kelgan' ? 'bg-success' : record.status === 'kechikkan' ? 'bg-warning' : 'bg-destructive'
                       }`} />
-                      {record?.status === 'kelgan' ? 'Kelgan' : record?.status === 'kechikkan' ? 'Kechikkan' : 'Kelmagan'}
+                      {record.status === 'kelgan' ? 'Kelgan' : record.status === 'kechikkan' ? 'Kechikkan' : 'Kelmagan'}
                     </span>
                   </td>
-                  <td className="p-4 text-sm text-foreground">{record?.workHours?.toFixed(2) || '0.00'} s.</td>
-                  <td className="p-4 text-sm text-muted-foreground italic max-w-[120px] truncate">{record?.note || '-'}</td>
+                  <td className="p-4 text-sm text-foreground">{record.workHours?.toFixed(2) || '0.00'} s.</td>
+                  <td className="p-4 text-sm text-muted-foreground italic max-w-[120px] truncate">{record.note || '-'}</td>
                   <td className="p-4">
                     <button onClick={() => setEditRecord({
                       teacherId: teacher.id,
-                      arrivedAt: record?.arrivedAt || '08:00',
-                      leftAt: record?.leftAt || '17:00',
-                      status: record?.status || 'kelgan',
-                      workHours: record?.workHours || 0,
-                      note: record?.note || '',
+                      arrivedAt: record.arrivedAt === '--:--' ? '08:00' : record.arrivedAt,
+                      leftAt: record.leftAt === '--:--' ? '17:00' : record.leftAt,
+                      status: record.status,
+                      workHours: record.workHours,
+                      note: record.note || '',
                     })} className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
                       <Pencil className="h-4 w-4" />
                     </button>
@@ -174,7 +228,7 @@ const TeacherAttendance = () => {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {teachers.slice(0, 3).map((t, i) => {
-            const r = getRecord(t.id);
+            const record = getRecord(t.id);
             const colors = ['text-primary', 'text-warning', 'text-success'];
             const msgs = ['ish vaqtini yakunladi', 'kechikib keldi', 'barvaqt keldi'];
             return (
@@ -182,7 +236,7 @@ const TeacherAttendance = () => {
                 <span className={`w-2 h-2 rounded-full mt-2 ${colors[i] === 'text-primary' ? 'bg-primary' : colors[i] === 'text-warning' ? 'bg-warning' : 'bg-success'}`} />
                 <div>
                   <p className="text-sm text-foreground"><span className="font-medium">{t.name}</span> {msgs[i]}</p>
-                  <p className="text-xs text-muted-foreground">{i === 0 ? 'Hozirgina' : `Bugun, ${r?.arrivedAt || '08:00'}`}</p>
+                  <p className="text-xs text-muted-foreground">{i === 0 ? 'Hozirgina' : `Bugun, ${record.arrivedAt === '--:--' ? '08:00' : record.arrivedAt}`}</p>
                 </div>
               </div>
             );
@@ -190,7 +244,6 @@ const TeacherAttendance = () => {
         </div>
       </div>
 
-      {/* Edit Modal */}
       {editRecord && (
         <div className="fixed inset-0 bg-foreground/50 flex items-center justify-center z-50" onClick={() => setEditRecord(null)}>
           <div className="bg-card rounded-2xl p-6 w-full max-w-md shadow-xl border border-border" onClick={e => e.stopPropagation()}>
@@ -201,7 +254,12 @@ const TeacherAttendance = () => {
             <div className="space-y-4">
               <div>
                 <label className="text-sm font-medium text-foreground block mb-1">Holati</label>
-                <select value={editRecord.status} onChange={e => setEditRecord(p => p ? { ...p, status: e.target.value as any } : p)}
+                <select value={editRecord.status} onChange={e => setEditRecord(p => p ? {
+                  ...p,
+                  status: e.target.value as 'kelgan' | 'kechikkan' | 'kelmagan',
+                  arrivedAt: e.target.value === 'kelmagan' ? '08:00' : p.arrivedAt,
+                  leftAt: e.target.value === 'kelmagan' ? '17:00' : p.leftAt,
+                } : p)}
                   className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm">
                   <option value="kelgan">Kelgan</option>
                   <option value="kechikkan">Kechikkan</option>
@@ -211,19 +269,19 @@ const TeacherAttendance = () => {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-sm font-medium text-foreground block mb-1">Kelgan vaqti</label>
-                  <input type="time" value={editRecord.arrivedAt} onChange={e => setEditRecord(p => p ? { ...p, arrivedAt: e.target.value } : p)}
-                    className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm" />
+                  <input type="time" value={editRecord.arrivedAt} disabled={editRecord.status === 'kelmagan'} onChange={e => setEditRecord(p => p ? { ...p, arrivedAt: e.target.value } : p)}
+                    className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm disabled:opacity-50" />
                 </div>
                 <div>
                   <label className="text-sm font-medium text-foreground block mb-1">Ketgan vaqti</label>
-                  <input type="time" value={editRecord.leftAt} onChange={e => setEditRecord(p => p ? { ...p, leftAt: e.target.value } : p)}
-                    className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm" />
+                  <input type="time" value={editRecord.leftAt} disabled={editRecord.status === 'kelmagan'} onChange={e => setEditRecord(p => p ? { ...p, leftAt: e.target.value } : p)}
+                    className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm disabled:opacity-50" />
                 </div>
               </div>
               <div>
                 <label className="text-sm font-medium text-foreground block mb-1">Ish soati</label>
-                <input type="number" value={editRecord.workHours} onChange={e => setEditRecord(p => p ? { ...p, workHours: Number(e.target.value) } : p)}
-                  className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm" />
+                <input type="number" value={editRecord.workHours} disabled={editRecord.status === 'kelmagan'} onChange={e => setEditRecord(p => p ? { ...p, workHours: Number(e.target.value) } : p)}
+                  className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm disabled:opacity-50" />
               </div>
               <div>
                 <label className="text-sm font-medium text-foreground block mb-1">Izoh</label>

@@ -34,7 +34,7 @@ const Login = () => {
               value={username}
               onChange={e => { setUsername(e.target.value); setError(''); }}
               className="w-full px-4 py-2.5 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-              placeholder="admin"
+              placeholder="admin yoki telefon raqam"
             />
           </div>
           <div>
@@ -60,7 +60,7 @@ const Login = () => {
         <div className="mt-6 p-4 rounded-lg bg-muted">
           <p className="text-xs font-medium text-muted-foreground mb-2">Test akkauntlar:</p>
           <p className="text-xs text-muted-foreground">Admin: <span className="font-mono text-foreground">admin / admin123</span></p>
-          <p className="text-xs text-muted-foreground">O'qituvchi: <span className="font-mono text-foreground">teacher1 / teacher1</span></p>
+          <p className="text-xs text-muted-foreground">Ustoz: <span className="font-mono text-foreground">telefon raqami / telefon raqami</span></p>
         </div>
       </div>
     </div>

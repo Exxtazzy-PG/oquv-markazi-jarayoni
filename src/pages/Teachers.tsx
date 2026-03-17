@@ -1,24 +1,37 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useData } from '@/contexts/DataContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
-import { Search, Plus, Calendar, Pencil, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Plus, Calendar, X, ChevronLeft, ChevronRight, MoreVertical, Pencil, Trash2 } from 'lucide-react';
 
 const Teachers = () => {
-  const { teachers, groups, addTeacher, updateTeacher } = useData();
+  const { teachers, groups, addTeacher, updateTeacher, deleteTeacher } = useData();
+  const { createTeacherAccount, syncTeacherAccount, deleteTeacherAccount } = useAuth();
   const navigate = useNavigate();
+  const menuRef = useRef<HTMLDivElement>(null);
   const [search, setSearch] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedTeacher, setSelectedTeacher] = useState<string | null>(null);
   const [showSchedule, setShowSchedule] = useState(false);
-  const [editTeacher, setEditTeacher] = useState<{ id: string; name: string; phone: string; subject: string } | null>(null);
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [editTeacher, setEditTeacher] = useState<{ id: string; name: string; phone: string; subject: string; status: 'faol' | 'dam_olishda' } | null>(null);
   const [page, setPage] = useState(1);
   const perPage = 10;
 
-  const [newTeacher, setNewTeacher] = useState({ name: '', phone: '', subject: '' });
+  const [newTeacher, setNewTeacher] = useState({ name: '', phone: '', subject: '', status: 'faol' as 'faol' | 'dam_olishda' });
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setOpenMenu(null);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
 
   const filtered = teachers.filter(t => t.name.toLowerCase().includes(search.toLowerCase()) || t.subject.toLowerCase().includes(search.toLowerCase()));
-  const totalPages = Math.ceil(filtered.length / perPage);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
   const paginated = filtered.slice((page - 1) * perPage, page * perPage);
 
   const getTeacherGroups = (teacherId: string) => groups.filter(g => g.teacherId === teacherId);
@@ -26,26 +39,65 @@ const Teachers = () => {
   const selectedGroups = selectedTeacher ? getTeacherGroups(selectedTeacher) : [];
 
   const handleAdd = () => {
-    if (!newTeacher.name) return;
-    addTeacher({
-      name: newTeacher.name, initials: newTeacher.name.split(' ').map(n => n[0]).join(''),
-      phone: newTeacher.phone, subject: newTeacher.subject, groupIds: [], status: 'faol', photo: '',
+    if (!newTeacher.name || !newTeacher.phone || !newTeacher.subject) return;
+
+    const createdTeacher = addTeacher({
+      name: newTeacher.name,
+      initials: newTeacher.name.split(' ').map(n => n[0]).join('').slice(0, 2),
+      phone: newTeacher.phone,
+      subject: newTeacher.subject,
+      groupIds: [],
+      status: newTeacher.status,
+      photo: '',
     });
-    setNewTeacher({ name: '', phone: '', subject: '' });
+
+    const credentials = createTeacherAccount({
+      id: createdTeacher.id,
+      name: createdTeacher.name,
+      phone: createdTeacher.phone,
+    });
+
+    setNewTeacher({ name: '', phone: '', subject: '', status: 'faol' });
     setShowAddModal(false);
-    toast({ title: "Ustoz qo'shildi", description: `${newTeacher.name} muvaffaqiyatli qo'shildi` });
+    toast({
+      title: "Ustoz qo'shildi",
+      description: `${createdTeacher.name} qo'shildi. Login: ${credentials.username}`,
+    });
   };
 
   const handleEditSave = () => {
     if (!editTeacher) return;
+
     updateTeacher(editTeacher.id, {
       name: editTeacher.name,
       phone: editTeacher.phone,
       subject: editTeacher.subject,
-      initials: editTeacher.name.split(' ').map(n => n[0]).join(''),
+      status: editTeacher.status,
+      initials: editTeacher.name.split(' ').map(n => n[0]).join('').slice(0, 2),
     });
-    toast({ title: "Ustoz tahrirlandi", description: `${editTeacher.name} ma'lumotlari yangilandi` });
+
+    const credentials = syncTeacherAccount({
+      id: editTeacher.id,
+      name: editTeacher.name,
+      phone: editTeacher.phone,
+    });
+
+    toast({ title: "Ustoz tahrirlandi", description: `Login yangilandi: ${credentials.username}` });
     setEditTeacher(null);
+  };
+
+  const handleDelete = (teacherId: string) => {
+    const teacher = teachers.find(item => item.id === teacherId);
+    if (!teacher) return;
+
+    deleteTeacher(teacherId);
+    deleteTeacherAccount(teacherId);
+    if (selectedTeacher === teacherId) {
+      setSelectedTeacher(null);
+      setShowSchedule(false);
+    }
+    setDeleteConfirm(null);
+    toast({ title: "Ustoz o'chirildi", description: `${teacher.name} ro'yxatdan olib tashlandi`, variant: 'destructive' });
   };
 
   return (
@@ -59,7 +111,7 @@ const Teachers = () => {
           <div className="flex items-center gap-3">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <input value={search} onChange={e => setSearch(e.target.value)}
+              <input value={search} onChange={e => { setSearch(e.target.value); setPage(1); }}
                 className="pl-10 pr-4 py-2 rounded-lg border border-input bg-card text-foreground text-sm w-64 focus:outline-none focus:ring-2 focus:ring-ring"
                 placeholder="Ism yoki fan bo'yicha qidirish..." />
             </div>
@@ -108,17 +160,43 @@ const Teachers = () => {
                     </td>
                     <td className="p-4 text-foreground">{teacher.phone}</td>
                     <td className="p-4">
-                      <span className={teacher.status === 'faol' ? 'badge-active' : 'badge-pending'}>
-                        {teacher.status === 'faol' ? 'FAOL' : 'DAM OLISHDA'}
-                      </span>
+                      <select
+                        value={teacher.status}
+                        onChange={e => {
+                          const value = e.target.value as 'faol' | 'dam_olishda';
+                          updateTeacher(teacher.id, { status: value });
+                          toast({ title: 'Holat yangilandi', description: `${teacher.name}: ${value === 'faol' ? 'FAOL' : 'DAM OLISHDA'}` });
+                        }}
+                        className="px-3 py-1.5 rounded-lg border border-input bg-background text-foreground text-xs font-semibold"
+                      >
+                        <option value="faol">FAOL</option>
+                        <option value="dam_olishda">DAM OLISHDA</option>
+                      </select>
                     </td>
-                    <td className="p-4 flex items-center gap-2">
-                      <button onClick={() => { setSelectedTeacher(teacher.id); setShowSchedule(true); }} className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground">
-                        <Calendar className="h-4 w-4" />
-                      </button>
-                      <button onClick={() => setEditTeacher({ id: teacher.id, name: teacher.name, phone: teacher.phone, subject: teacher.subject })} className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground">
-                        <Pencil className="h-4 w-4" />
-                      </button>
+                    <td className="p-4">
+                      <div className="flex items-center gap-2 justify-end">
+                        <button onClick={() => { setSelectedTeacher(teacher.id); setShowSchedule(true); }} className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground">
+                          <Calendar className="h-4 w-4" />
+                        </button>
+                        <div className="relative" ref={openMenu === teacher.id ? menuRef : undefined}>
+                          <button onClick={() => setOpenMenu(openMenu === teacher.id ? null : teacher.id)} className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground">
+                            <MoreVertical className="h-4 w-4" />
+                          </button>
+                          {openMenu === teacher.id && (
+                            <div className="absolute right-0 top-8 bg-card border border-border rounded-lg shadow-lg py-1 z-20 w-44">
+                              <button onClick={() => {
+                                setEditTeacher({ id: teacher.id, name: teacher.name, phone: teacher.phone, subject: teacher.subject, status: teacher.status });
+                                setOpenMenu(null);
+                              }} className="w-full text-left px-4 py-2 text-sm hover:bg-muted text-foreground flex items-center gap-2">
+                                <Pencil className="h-3.5 w-3.5" /> Tahrirlash
+                              </button>
+                              <button onClick={() => { setDeleteConfirm(teacher.id); setOpenMenu(null); }} className="w-full text-left px-4 py-2 text-sm hover:bg-destructive/10 text-destructive flex items-center gap-2">
+                                <Trash2 className="h-3.5 w-3.5" /> O'chirish
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </td>
                   </tr>
                 );
@@ -126,7 +204,7 @@ const Teachers = () => {
             </tbody>
           </table>
           <div className="p-4 flex items-center justify-between border-t border-border">
-            <p className="text-sm text-muted-foreground">1-{Math.min(perPage, filtered.length)} / {filtered.length} TADAN</p>
+            <p className="text-sm text-muted-foreground">{filtered.length === 0 ? '0' : (page - 1) * perPage + 1}-{Math.min(page * perPage, filtered.length)} / {filtered.length} TADAN</p>
             <div className="flex items-center gap-1">
               <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="p-2 rounded-lg hover:bg-muted disabled:opacity-30"><ChevronLeft className="h-4 w-4" /></button>
               {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
@@ -166,7 +244,6 @@ const Teachers = () => {
         </div>
       )}
 
-      {/* Add Modal */}
       {showAddModal && (
         <div className="fixed inset-0 bg-foreground/50 flex items-center justify-center z-50" onClick={() => setShowAddModal(false)}>
           <div className="bg-card rounded-2xl p-6 w-full max-w-md shadow-xl border border-border" onClick={e => e.stopPropagation()}>
@@ -190,13 +267,20 @@ const Teachers = () => {
                 <input value={newTeacher.subject} onChange={e => setNewTeacher(p => ({ ...p, subject: e.target.value }))}
                   className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm" placeholder="Yo'nalish" />
               </div>
+              <div>
+                <label className="text-sm font-medium text-foreground block mb-1">Holati</label>
+                <select value={newTeacher.status} onChange={e => setNewTeacher(p => ({ ...p, status: e.target.value as 'faol' | 'dam_olishda' }))}
+                  className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm">
+                  <option value="faol">FAOL</option>
+                  <option value="dam_olishda">DAM OLISHDA</option>
+                </select>
+              </div>
               <button onClick={handleAdd} className="w-full bg-primary text-primary-foreground py-2.5 rounded-lg font-medium hover:opacity-90 transition-opacity">Qo'shish</button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Edit Modal */}
       {editTeacher && (
         <div className="fixed inset-0 bg-foreground/50 flex items-center justify-center z-50" onClick={() => setEditTeacher(null)}>
           <div className="bg-card rounded-2xl p-6 w-full max-w-md shadow-xl border border-border" onClick={e => e.stopPropagation()}>
@@ -220,7 +304,28 @@ const Teachers = () => {
                 <input value={editTeacher.subject} onChange={e => setEditTeacher(p => p ? { ...p, subject: e.target.value } : p)}
                   className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm" />
               </div>
+              <div>
+                <label className="text-sm font-medium text-foreground block mb-1">Holati</label>
+                <select value={editTeacher.status} onChange={e => setEditTeacher(p => p ? { ...p, status: e.target.value as 'faol' | 'dam_olishda' } : p)}
+                  className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm">
+                  <option value="faol">FAOL</option>
+                  <option value="dam_olishda">DAM OLISHDA</option>
+                </select>
+              </div>
               <button onClick={handleEditSave} className="w-full bg-primary text-primary-foreground py-2.5 rounded-lg font-medium hover:opacity-90 transition-opacity">Saqlash</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {deleteConfirm && (
+        <div className="fixed inset-0 bg-foreground/50 flex items-center justify-center z-50" onClick={() => setDeleteConfirm(null)}>
+          <div className="bg-card rounded-2xl p-6 w-full max-w-sm shadow-xl border border-border" onClick={e => e.stopPropagation()}>
+            <h2 className="text-lg font-bold text-foreground mb-2">Ustozni o'chirish</h2>
+            <p className="text-sm text-muted-foreground mb-6">Bu ustoz o'chirilsa, login va ustozlar davomatidagi ko'rinishi ham olib tashlanadi.</p>
+            <div className="flex gap-3">
+              <button onClick={() => setDeleteConfirm(null)} className="flex-1 py-2 rounded-lg border border-border text-foreground text-sm font-medium hover:bg-muted">Bekor qilish</button>
+              <button onClick={() => handleDelete(deleteConfirm)} className="flex-1 py-2 rounded-lg bg-destructive text-destructive-foreground text-sm font-medium hover:opacity-90">O'chirish</button>
             </div>
           </div>
         </div>

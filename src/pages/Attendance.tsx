@@ -1,50 +1,75 @@
-import { useState, useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useData } from '@/contexts/DataContext';
 import { toast } from '@/hooks/use-toast';
-import { ArrowLeft, Save, Download, CheckCircle, XCircle, AlertCircle, MoreVertical, Plus, X, Pencil } from 'lucide-react';
+import { ArrowLeft, Save, CheckCircle, XCircle, AlertCircle, MoreVertical, Plus, X, Pencil, Trash2 } from 'lucide-react';
 
 type AttStatus = 'present' | 'absent' | 'excused';
 
 const Attendance = () => {
   const { groupId } = useParams<{ groupId: string }>();
   const navigate = useNavigate();
-  const { groups, students, teachers, attendance, setAttendance, updateGroup, addStudent } = useData();
+  const { groups, students, teachers, attendance, setAttendance, updateGroup, addStudent, deleteStudent, updateStudent } = useData();
+  const menuRef = useRef<HTMLDivElement>(null);
   const [tab, setTab] = useState<'jurnal' | 'statistika'>('jurnal');
   const [month, setMonth] = useState(new Date().getMonth());
   const [year, setYear] = useState(new Date().getFullYear());
   const [menuOpen, setMenuOpen] = useState(false);
+  const [rowMenuOpen, setRowMenuOpen] = useState<string | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showAddStudentModal, setShowAddStudentModal] = useState(false);
+  const [editStudent, setEditStudent] = useState<{ id: string; name: string; phone: string } | null>(null);
+  const [deleteStudentId, setDeleteStudentId] = useState<string | null>(null);
   const [newStudentName, setNewStudentName] = useState('');
   const [newStudentPhone, setNewStudentPhone] = useState('');
 
   const group = groups.find(g => g.id === groupId);
   const groupStudents = students.filter(s => s.groupId === groupId);
-  const teacher = teachers.find(t => t.id === group?.teacherId);
 
   const [editGroupData, setEditGroupData] = useState({ name: group?.name || '', teacherId: group?.teacherId || '', time: group?.time || '' });
+
+  useEffect(() => {
+    if (group) {
+      setEditGroupData({ name: group.name, teacherId: group.teacherId, time: group.time });
+    }
+  }, [group]);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setRowMenuOpen(null);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
 
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const monthName = new Date(year, month).toLocaleDateString('uz-UZ', { month: 'long' });
 
-  const [localAtt, setLocalAtt] = useState<Record<string, AttStatus>>(() => {
+  const persistedMap = useMemo(() => {
     const map: Record<string, AttStatus> = {};
     attendance.filter(a => a.groupId === groupId).forEach(a => {
       map[`${a.studentId}-${a.date}`] = a.status;
     });
-    groupStudents.forEach(s => {
+    return map;
+  }, [attendance, groupId]);
+
+  const buildLocalAttendance = () => {
+    const map = { ...persistedMap };
+    groupStudents.forEach(student => {
       for (let d = 1; d <= daysInMonth; d++) {
         const date = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-        const key = `${s.id}-${date}`;
-        if (!map[key]) {
-          const rand = Math.random();
-          map[key] = rand > 0.15 ? 'present' : rand > 0.05 ? 'absent' : 'excused';
-        }
+        const key = `${student.id}-${date}`;
+        if (!map[key]) map[key] = 'present';
       }
     });
     return map;
-  });
+  };
+
+  const [localAtt, setLocalAtt] = useState<Record<string, AttStatus>>(() => buildLocalAttendance());
+
+  useEffect(() => {
+    setLocalAtt(buildLocalAttendance());
+  }, [groupId, month, year, students, attendance]);
 
   const toggleStatus = (studentId: string, day: number) => {
     const date = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
@@ -56,27 +81,43 @@ const Attendance = () => {
 
   const handleSave = () => {
     const records = Object.entries(localAtt).map(([key, status]) => {
-      const [studentId, date] = [key.split('-')[0], key.split('-').slice(1).join('-')];
+      const [studentId, ...rest] = key.split('-');
+      const date = rest.join('-');
       return { groupId: groupId!, studentId, date, status };
     });
     setAttendance(records);
-    toast({ title: "Saqlandi", description: "Davomat ma'lumotlari muvaffaqiyatli saqlandi" });
+    toast({ title: 'Saqlandi', description: 'Davomat maʼlumotlari muvaffaqiyatli saqlandi' });
   };
 
   const handleEditGroup = () => {
     if (!groupId) return;
     updateGroup(groupId, { name: editGroupData.name, teacherId: editGroupData.teacherId, time: editGroupData.time });
     setShowEditModal(false);
-    toast({ title: "Guruh tahrirlandi", description: `${editGroupData.name} yangilandi` });
+    toast({ title: 'Guruh tahrirlandi', description: `${editGroupData.name} yangilandi` });
   };
 
   const handleAddStudentToGroup = () => {
     if (!newStudentName || !groupId) return;
-    addStudent({ name: newStudentName, phone: newStudentPhone, groupId, balance: 0, status: 'faol', lastAction: 'Bugun', lastActionType: "YARATILDI", photo: '' });
+    addStudent({ name: newStudentName, phone: newStudentPhone, groupId, balance: 0, status: 'faol', lastAction: 'Bugun', lastActionType: 'YARATILDI', photo: '' });
     setNewStudentName('');
     setNewStudentPhone('');
     setShowAddStudentModal(false);
     toast({ title: "Talaba qo'shildi", description: `${newStudentName} guruhga qo'shildi` });
+  };
+
+  const handleEditStudent = () => {
+    if (!editStudent) return;
+    updateStudent(editStudent.id, { name: editStudent.name, phone: editStudent.phone });
+    setEditStudent(null);
+    toast({ title: 'Talaba tahrirlandi', description: `${editStudent.name} ma'lumotlari saqlandi` });
+  };
+
+  const handleDeleteStudent = () => {
+    if (!deleteStudentId) return;
+    const student = groupStudents.find(item => item.id === deleteStudentId);
+    deleteStudent(deleteStudentId);
+    setDeleteStudentId(null);
+    toast({ title: 'Talaba o\'chirildi', description: `${student?.name || 'Talaba'} guruhdan olib tashlandi`, variant: 'destructive' });
   };
 
   const getStudentTotal = (studentId: string) => {
@@ -151,7 +192,7 @@ const Attendance = () => {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border">
-                <th className="text-left p-3 text-xs font-semibold text-muted-foreground sticky left-0 bg-card z-10 min-w-[180px]">F.I.SH.</th>
+                <th className="text-left p-3 text-xs font-semibold text-muted-foreground sticky left-0 bg-card z-10 min-w-[220px]">F.I.SH.</th>
                 {displayDays.map(d => (
                   <th key={d} className="p-2 text-center text-xs text-muted-foreground min-w-[32px]">
                     <div>{['Yak', 'Dush', 'Sesh', 'Chor', 'Pay', 'Juma', 'Shan'][new Date(year, month, d).getDay()]}</div>
@@ -165,11 +206,31 @@ const Attendance = () => {
               {groupStudents.map((student, idx) => (
                 <tr key={student.id} className="border-b border-border hover:bg-muted/30">
                   <td className="p-3 sticky left-0 bg-card z-10">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-muted-foreground w-5">{idx + 1}.</span>
-                      <div>
-                        <p className="font-medium text-foreground">{student.name}</p>
-                        <p className="text-xs text-muted-foreground">{student.status === 'faol' ? 'ACTIVE' : 'INACTIVE'}</p>
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="text-xs text-muted-foreground w-5">{idx + 1}.</span>
+                        <div className="min-w-0">
+                          <p className="font-medium text-foreground truncate">{student.name}</p>
+                          <p className="text-xs text-muted-foreground">{student.status === 'faol' ? 'ACTIVE' : 'INACTIVE'}</p>
+                        </div>
+                      </div>
+                      <div className="relative shrink-0" ref={rowMenuOpen === student.id ? menuRef : undefined}>
+                        <button onClick={() => setRowMenuOpen(rowMenuOpen === student.id ? null : student.id)} className="p-1 rounded-lg hover:bg-muted text-muted-foreground">
+                          <MoreVertical className="h-4 w-4" />
+                        </button>
+                        {rowMenuOpen === student.id && (
+                          <div className="absolute right-0 top-8 bg-card border border-border rounded-lg shadow-lg py-1 z-20 w-40">
+                            <button onClick={() => {
+                              setEditStudent({ id: student.id, name: student.name, phone: student.phone });
+                              setRowMenuOpen(null);
+                            }} className="w-full text-left px-4 py-2 text-sm hover:bg-muted text-foreground flex items-center gap-2">
+                              <Pencil className="h-3.5 w-3.5" /> Tahrirlash
+                            </button>
+                            <button onClick={() => { setDeleteStudentId(student.id); setRowMenuOpen(null); }} className="w-full text-left px-4 py-2 text-sm hover:bg-destructive/10 text-destructive flex items-center gap-2">
+                              <Trash2 className="h-3.5 w-3.5" /> O'chirish
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </td>
@@ -234,7 +295,6 @@ const Attendance = () => {
         </div>
       )}
 
-      {/* Edit Group Modal */}
       {showEditModal && (
         <div className="fixed inset-0 bg-foreground/50 flex items-center justify-center z-50" onClick={() => setShowEditModal(false)}>
           <div className="bg-card rounded-2xl p-6 w-full max-w-md shadow-xl border border-border" onClick={e => e.stopPropagation()}>
@@ -266,7 +326,6 @@ const Attendance = () => {
         </div>
       )}
 
-      {/* Add Student Modal */}
       {showAddStudentModal && (
         <div className="fixed inset-0 bg-foreground/50 flex items-center justify-center z-50" onClick={() => setShowAddStudentModal(false)}>
           <div className="bg-card rounded-2xl p-6 w-full max-w-md shadow-xl border border-border" onClick={e => e.stopPropagation()}>
@@ -286,6 +345,41 @@ const Attendance = () => {
                   className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm" placeholder="+998" />
               </div>
               <button onClick={handleAddStudentToGroup} className="w-full bg-primary text-primary-foreground py-2.5 rounded-lg font-medium hover:opacity-90">Qo'shish</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {editStudent && (
+        <div className="fixed inset-0 bg-foreground/50 flex items-center justify-center z-50" onClick={() => setEditStudent(null)}>
+          <div className="bg-card rounded-2xl p-6 w-full max-w-md shadow-xl border border-border" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-bold text-foreground">Talabani tahrirlash</h2>
+              <button onClick={() => setEditStudent(null)} className="text-muted-foreground hover:text-foreground"><X className="h-5 w-5" /></button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium text-foreground block mb-1">Ism</label>
+                <input value={editStudent.name} onChange={e => setEditStudent(p => p ? { ...p, name: e.target.value } : p)} className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm" />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground block mb-1">Telefon</label>
+                <input value={editStudent.phone} onChange={e => setEditStudent(p => p ? { ...p, phone: e.target.value } : p)} className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm" />
+              </div>
+              <button onClick={handleEditStudent} className="w-full bg-primary text-primary-foreground py-2.5 rounded-lg font-medium hover:opacity-90">Saqlash</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {deleteStudentId && (
+        <div className="fixed inset-0 bg-foreground/50 flex items-center justify-center z-50" onClick={() => setDeleteStudentId(null)}>
+          <div className="bg-card rounded-2xl p-6 w-full max-w-sm shadow-xl border border-border" onClick={e => e.stopPropagation()}>
+            <h2 className="text-lg font-bold text-foreground mb-2">Talabani o'chirish</h2>
+            <p className="text-sm text-muted-foreground mb-6">Bu talaba guruh va jurnal ro'yxatidan o'chiriladi.</p>
+            <div className="flex gap-3">
+              <button onClick={() => setDeleteStudentId(null)} className="flex-1 py-2 rounded-lg border border-border text-foreground text-sm font-medium hover:bg-muted">Bekor qilish</button>
+              <button onClick={handleDeleteStudent} className="flex-1 py-2 rounded-lg bg-destructive text-destructive-foreground text-sm font-medium hover:opacity-90">O'chirish</button>
             </div>
           </div>
         </div>
