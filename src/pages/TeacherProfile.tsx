@@ -8,7 +8,7 @@ const TeacherProfile = () => {
   const { teachers, groups, students, teacherAttendance } = useData();
 
   const teacher = teachers.find(t => t.id === teacherId);
-  if (!teacher) return <div className="p-8 text-center text-muted-foreground">Ustoz topilmadi</div>;
+  if (!teacher) return <div className="p-8 text-center text-muted-foreground">Ustoz topilmadi yoki o'chirilgan</div>;
 
   const teacherGroups = groups.filter(g => g.teacherId === teacherId);
   const teacherStudentCount = students.filter(s => teacherGroups.some(g => g.id === s.groupId)).length;
