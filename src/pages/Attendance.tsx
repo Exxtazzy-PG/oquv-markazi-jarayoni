@@ -223,7 +223,7 @@ const Attendance = () => {
             </thead>
             <tbody>
               {groupStudents.map((student, idx) => (
-                <tr key={student.id} className="border-b border-border hover:bg-muted/30">
+                 <tr key={student.id} className="border-b border-border hover:bg-muted/30">
                   <td className="p-3 sticky left-0 bg-card z-10">
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2 min-w-0">
@@ -234,26 +234,10 @@ const Attendance = () => {
                         </div>
                       </div>
                       <div className="shrink-0">
-                        <button onClick={(e) => { e.stopPropagation(); setRowMenuOpen(rowMenuOpen === student.id ? null : student.id); }} className="p-1 rounded-lg hover:bg-muted text-muted-foreground">
+                        <button onClick={(e) => handleRowMenuToggle(student.id, e)} className="p-1 rounded-lg hover:bg-muted text-muted-foreground">
                           <MoreVertical className="h-4 w-4" />
                         </button>
                       </div>
-                    </div>
-                    {rowMenuOpen === student.id && (
-                      <div className="fixed z-[9999]" style={{ top: 'auto', left: 'auto' }} ref={rowMenuRef}>
-                        <div className="absolute right-0 bottom-0 mb-[-120px] bg-card border border-border rounded-lg shadow-xl py-1 w-44">
-                          <button onClick={() => {
-                            setEditStudent({ id: student.id, name: student.name, phone: student.phone });
-                            setRowMenuOpen(null);
-                          }} className="w-full text-left px-4 py-2 text-sm hover:bg-muted text-foreground flex items-center gap-2">
-                            <Pencil className="h-3.5 w-3.5" /> Tahrirlash
-                          </button>
-                          <button onClick={() => { setDeleteStudentId(student.id); setRowMenuOpen(null); }} className="w-full text-left px-4 py-2 text-sm hover:bg-destructive/10 text-destructive flex items-center gap-2">
-                            <Trash2 className="h-3.5 w-3.5" /> O'chirish
-                          </button>
-                        </div>
-                      </div>
-                    )}
                     </div>
                   </td>
                   {displayDays.map(d => {
