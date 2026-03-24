@@ -23,6 +23,7 @@ const teacherItems = [
 
 export function AppSidebar() {
   const { user, logout } = useAuth();
+  const { settings } = useData();
   const { state } = useSidebar();
   const collapsed = state === 'collapsed';
   const items = user?.role === 'admin' ? adminItems : teacherItems;
@@ -31,12 +32,15 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" className="border-r border-border">
       <div className="p-4 border-b border-border">
         {!collapsed && (
-          <div>
-            <h1 className="text-lg font-bold text-foreground">EDU CRM</h1>
-            <p className="text-xs text-muted-foreground">O'quv markazi boshqaruvi</p>
+          <div className="flex items-center gap-2">
+            <img src={logoImg} alt="Logo" className="h-8 w-8 object-contain" />
+            <div>
+              <h1 className="text-sm font-bold text-foreground">{settings.centerName}</h1>
+              <p className="text-xs text-muted-foreground">O'quv markazi boshqaruvi</p>
+            </div>
           </div>
         )}
-        {collapsed && <h1 className="text-lg font-bold text-primary text-center">E</h1>}
+        {collapsed && <img src={logoImg} alt="Logo" className="h-8 w-8 object-contain mx-auto" />}
       </div>
       <SidebarContent className="pt-2">
         <SidebarGroup>

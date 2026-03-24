@@ -26,7 +26,7 @@ export function Layout({ children }: { children: ReactNode }) {
             {children}
           </main>
           <footer className="text-center py-4 text-xs text-muted-foreground border-t border-border">
-            © 2024 EDU CRM. Barcha huquqlar himoyalangan.
+            © 2024 IT SAF CENTER. Barcha huquqlar himoyalangan.
           </footer>
         </div>
       </div>
