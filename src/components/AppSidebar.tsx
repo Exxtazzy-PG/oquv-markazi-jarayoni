@@ -1,10 +1,12 @@
 import { LayoutDashboard, Users, GraduationCap, Layers, ClipboardList, Settings, LogOut } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useAuth } from '@/contexts/AuthContext';
+import { useData } from '@/contexts/DataContext';
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu,
   SidebarMenuButton, SidebarMenuItem, SidebarFooter, useSidebar,
 } from '@/components/ui/sidebar';
+import logoImg from '@/assets/logo.png';
 
 const adminItems = [
   { title: 'Boshqaruv Paneli', url: '/', icon: LayoutDashboard },
