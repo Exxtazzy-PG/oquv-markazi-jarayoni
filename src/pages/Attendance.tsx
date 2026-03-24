@@ -216,24 +216,27 @@ const Attendance = () => {
                           <p className="text-xs text-muted-foreground">{student.status === 'faol' ? 'ACTIVE' : 'INACTIVE'}</p>
                         </div>
                       </div>
-                      <div className="relative shrink-0" ref={rowMenuOpen === student.id ? rowMenuRef : undefined}>
+                      <div className="shrink-0">
                         <button onClick={(e) => { e.stopPropagation(); setRowMenuOpen(rowMenuOpen === student.id ? null : student.id); }} className="p-1 rounded-lg hover:bg-muted text-muted-foreground">
                           <MoreVertical className="h-4 w-4" />
                         </button>
-                        {rowMenuOpen === student.id && (
-                          <div className="absolute right-0 top-8 bg-card border border-border rounded-lg shadow-lg py-1 z-20 w-40">
-                            <button onClick={() => {
-                              setEditStudent({ id: student.id, name: student.name, phone: student.phone });
-                              setRowMenuOpen(null);
-                            }} className="w-full text-left px-4 py-2 text-sm hover:bg-muted text-foreground flex items-center gap-2">
-                              <Pencil className="h-3.5 w-3.5" /> Tahrirlash
-                            </button>
-                            <button onClick={() => { setDeleteStudentId(student.id); setRowMenuOpen(null); }} className="w-full text-left px-4 py-2 text-sm hover:bg-destructive/10 text-destructive flex items-center gap-2">
-                              <Trash2 className="h-3.5 w-3.5" /> O'chirish
-                            </button>
-                          </div>
-                        )}
                       </div>
+                    </div>
+                    {rowMenuOpen === student.id && (
+                      <div className="fixed z-[9999]" style={{ top: 'auto', left: 'auto' }} ref={rowMenuRef}>
+                        <div className="absolute right-0 bottom-0 mb-[-120px] bg-card border border-border rounded-lg shadow-xl py-1 w-44">
+                          <button onClick={() => {
+                            setEditStudent({ id: student.id, name: student.name, phone: student.phone });
+                            setRowMenuOpen(null);
+                          }} className="w-full text-left px-4 py-2 text-sm hover:bg-muted text-foreground flex items-center gap-2">
+                            <Pencil className="h-3.5 w-3.5" /> Tahrirlash
+                          </button>
+                          <button onClick={() => { setDeleteStudentId(student.id); setRowMenuOpen(null); }} className="w-full text-left px-4 py-2 text-sm hover:bg-destructive/10 text-destructive flex items-center gap-2">
+                            <Trash2 className="h-3.5 w-3.5" /> O'chirish
+                          </button>
+                        </div>
+                      </div>
+                    )}
                     </div>
                   </td>
                   {displayDays.map(d => {
