@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useData } from '@/contexts/DataContext';
 import { toast } from '@/hooks/use-toast';
@@ -23,6 +24,7 @@ const Attendance = () => {
   const [deleteStudentId, setDeleteStudentId] = useState<string | null>(null);
   const [newStudentName, setNewStudentName] = useState('');
   const [newStudentPhone, setNewStudentPhone] = useState('');
+  const [menuPos, setMenuPos] = useState<{ top: number; left: number } | null>(null);
 
   const group = groups.find(g => g.id === groupId);
   const groupStudents = students.filter(s => s.groupId === groupId);
@@ -37,12 +39,27 @@ const Attendance = () => {
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (rowMenuRef.current && !rowMenuRef.current.contains(e.target as Node)) setRowMenuOpen(null);
+      if (rowMenuRef.current && !rowMenuRef.current.contains(e.target as Node)) {
+        setRowMenuOpen(null);
+        setMenuPos(null);
+      }
       if (topMenuRef.current && !topMenuRef.current.contains(e.target as Node)) setMenuOpen(false);
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
+
+  const handleRowMenuToggle = useCallback((studentId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (rowMenuOpen === studentId) {
+      setRowMenuOpen(null);
+      setMenuPos(null);
+    } else {
+      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+      setMenuPos({ top: rect.bottom + 4, left: rect.right - 176 });
+      setRowMenuOpen(studentId);
+    }
+  }, [rowMenuOpen]);
 
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const monthName = new Date(year, month).toLocaleDateString('uz-UZ', { month: 'long' });
@@ -206,7 +223,7 @@ const Attendance = () => {
             </thead>
             <tbody>
               {groupStudents.map((student, idx) => (
-                <tr key={student.id} className="border-b border-border hover:bg-muted/30">
+                 <tr key={student.id} className="border-b border-border hover:bg-muted/30">
                   <td className="p-3 sticky left-0 bg-card z-10">
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2 min-w-0">
@@ -216,23 +233,10 @@ const Attendance = () => {
                           <p className="text-xs text-muted-foreground">{student.status === 'faol' ? 'ACTIVE' : 'INACTIVE'}</p>
                         </div>
                       </div>
-                      <div className="relative shrink-0" ref={rowMenuOpen === student.id ? rowMenuRef : undefined}>
-                        <button onClick={(e) => { e.stopPropagation(); setRowMenuOpen(rowMenuOpen === student.id ? null : student.id); }} className="p-1 rounded-lg hover:bg-muted text-muted-foreground">
+                      <div className="shrink-0">
+                        <button onClick={(e) => handleRowMenuToggle(student.id, e)} className="p-1 rounded-lg hover:bg-muted text-muted-foreground">
                           <MoreVertical className="h-4 w-4" />
                         </button>
-                        {rowMenuOpen === student.id && (
-                          <div className="absolute right-0 top-8 bg-card border border-border rounded-lg shadow-lg py-1 z-20 w-40">
-                            <button onClick={() => {
-                              setEditStudent({ id: student.id, name: student.name, phone: student.phone });
-                              setRowMenuOpen(null);
-                            }} className="w-full text-left px-4 py-2 text-sm hover:bg-muted text-foreground flex items-center gap-2">
-                              <Pencil className="h-3.5 w-3.5" /> Tahrirlash
-                            </button>
-                            <button onClick={() => { setDeleteStudentId(student.id); setRowMenuOpen(null); }} className="w-full text-left px-4 py-2 text-sm hover:bg-destructive/10 text-destructive flex items-center gap-2">
-                              <Trash2 className="h-3.5 w-3.5" /> O'chirish
-                            </button>
-                          </div>
-                        )}
                       </div>
                     </div>
                   </td>
@@ -296,6 +300,30 @@ const Attendance = () => {
           </div>
         </div>
       )}
+
+      {rowMenuOpen && menuPos && (() => {
+        const student = groupStudents.find(s => s.id === rowMenuOpen);
+        if (!student) return null;
+        return createPortal(
+          <div ref={rowMenuRef} className="fixed z-[9999] bg-card border border-border rounded-lg shadow-xl py-1 w-44" style={{ top: menuPos.top, left: menuPos.left }}>
+            <button onClick={() => {
+              setEditStudent({ id: student.id, name: student.name, phone: student.phone });
+              setRowMenuOpen(null);
+              setMenuPos(null);
+            }} className="w-full text-left px-4 py-2 text-sm hover:bg-muted text-foreground flex items-center gap-2">
+              <Pencil className="h-3.5 w-3.5" /> Tahrirlash
+            </button>
+            <button onClick={() => {
+              setDeleteStudentId(student.id);
+              setRowMenuOpen(null);
+              setMenuPos(null);
+            }} className="w-full text-left px-4 py-2 text-sm hover:bg-destructive/10 text-destructive flex items-center gap-2">
+              <Trash2 className="h-3.5 w-3.5" /> O'chirish
+            </button>
+          </div>,
+          document.body
+        );
+      })()}
 
       {showEditModal && (
         <div className="fixed inset-0 bg-foreground/50 flex items-center justify-center z-50" onClick={() => setShowEditModal(false)}>
