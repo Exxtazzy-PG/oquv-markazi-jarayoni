@@ -216,8 +216,8 @@ const Attendance = () => {
                           <p className="text-xs text-muted-foreground">{student.status === 'faol' ? 'ACTIVE' : 'INACTIVE'}</p>
                         </div>
                       </div>
-                      <div className="relative shrink-0" ref={rowMenuOpen === student.id ? menuRef : undefined}>
-                        <button onClick={() => setRowMenuOpen(rowMenuOpen === student.id ? null : student.id)} className="p-1 rounded-lg hover:bg-muted text-muted-foreground">
+                      <div className="relative shrink-0" ref={rowMenuOpen === student.id ? rowMenuRef : undefined}>
+                        <button onClick={(e) => { e.stopPropagation(); setRowMenuOpen(rowMenuOpen === student.id ? null : student.id); }} className="p-1 rounded-lg hover:bg-muted text-muted-foreground">
                           <MoreVertical className="h-4 w-4" />
                         </button>
                         {rowMenuOpen === student.id && (

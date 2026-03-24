@@ -132,11 +132,15 @@ export const initialSettings: Settings = {
   paymentReminder: false,
 };
 
+function normalizePhoneForAccount(phone: string) {
+  return phone.replace(/\D/g, '') || phone.trim();
+}
+
 export const userAccounts = [
   { username: 'admin', password: 'admin123', role: 'admin' as const, teacherId: null, name: "Azizbek G'ulomov" },
-  ...initialTeachers.map((t, i) => ({
-    username: `teacher${i + 1}`,
-    password: `teacher${i + 1}`,
+  ...initialTeachers.map((t) => ({
+    username: normalizePhoneForAccount(t.phone),
+    password: normalizePhoneForAccount(t.phone),
     role: 'teacher' as const,
     teacherId: t.id,
     name: t.name,
