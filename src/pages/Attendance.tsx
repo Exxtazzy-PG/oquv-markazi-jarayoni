@@ -301,6 +301,30 @@ const Attendance = () => {
         </div>
       )}
 
+      {rowMenuOpen && menuPos && (() => {
+        const student = groupStudents.find(s => s.id === rowMenuOpen);
+        if (!student) return null;
+        return createPortal(
+          <div ref={rowMenuRef} className="fixed z-[9999] bg-card border border-border rounded-lg shadow-xl py-1 w-44" style={{ top: menuPos.top, left: menuPos.left }}>
+            <button onClick={() => {
+              setEditStudent({ id: student.id, name: student.name, phone: student.phone });
+              setRowMenuOpen(null);
+              setMenuPos(null);
+            }} className="w-full text-left px-4 py-2 text-sm hover:bg-muted text-foreground flex items-center gap-2">
+              <Pencil className="h-3.5 w-3.5" /> Tahrirlash
+            </button>
+            <button onClick={() => {
+              setDeleteStudentId(student.id);
+              setRowMenuOpen(null);
+              setMenuPos(null);
+            }} className="w-full text-left px-4 py-2 text-sm hover:bg-destructive/10 text-destructive flex items-center gap-2">
+              <Trash2 className="h-3.5 w-3.5" /> O'chirish
+            </button>
+          </div>,
+          document.body
+        );
+      })()}
+
       {showEditModal && (
         <div className="fixed inset-0 bg-foreground/50 flex items-center justify-center z-50" onClick={() => setShowEditModal(false)}>
           <div className="bg-card rounded-2xl p-6 w-full max-w-md shadow-xl border border-border" onClick={e => e.stopPropagation()}>
