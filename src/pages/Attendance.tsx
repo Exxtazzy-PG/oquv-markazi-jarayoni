@@ -163,7 +163,7 @@ const Attendance = () => {
           <button onClick={handleSave} className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90">
             <Save className="h-4 w-4" /> Saqlash
           </button>
-          <div className="relative">
+          <div className="relative" ref={topMenuRef}>
             <button onClick={() => setMenuOpen(!menuOpen)} className="p-2 rounded-lg border border-border hover:bg-muted"><MoreVertical className="h-4 w-4" /></button>
             {menuOpen && (
               <div className="absolute right-0 top-10 bg-card border border-border rounded-lg shadow-lg py-1 z-10 w-48">
