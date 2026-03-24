@@ -24,6 +24,7 @@ const Attendance = () => {
   const [deleteStudentId, setDeleteStudentId] = useState<string | null>(null);
   const [newStudentName, setNewStudentName] = useState('');
   const [newStudentPhone, setNewStudentPhone] = useState('');
+  const [menuPos, setMenuPos] = useState<{ top: number; left: number } | null>(null);
 
   const group = groups.find(g => g.id === groupId);
   const groupStudents = students.filter(s => s.groupId === groupId);
