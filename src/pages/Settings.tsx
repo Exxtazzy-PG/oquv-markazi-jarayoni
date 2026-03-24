@@ -1,11 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useData } from '@/contexts/DataContext';
-import { Settings as SettingsIcon, Building, Bell, Cog, Users, Save, X, Upload, Pencil } from 'lucide-react';
+import { Settings as SettingsIcon, Building, Bell, Cog, Users, Save } from 'lucide-react';
+import logoImg from '@/assets/logo.png';
 
 const SettingsPage = () => {
-  const { settings, updateSettings } = useData();
+  const { settings, updateSettings, teachers, getCurrencySymbol } = useData();
   const [local, setLocal] = useState({ ...settings });
   const [activeTab, setActiveTab] = useState('markaz');
+
+  useEffect(() => {
+    setLocal({ ...settings });
+  }, [settings]);
 
   const handleSave = () => updateSettings(local);
   const handleCancel = () => setLocal({ ...settings });
@@ -17,10 +22,11 @@ const SettingsPage = () => {
     { key: 'rollar', label: 'Foydalanuvchi rollari', icon: Users },
   ];
 
+  const faolTeachers = teachers.filter(t => t.status === 'faol').length;
+
   const roles = [
-    { name: 'Administrator', count: '2 ta xodim', level: "TO'LIQ RUXSAT", color: 'bg-primary/10 text-primary' },
-    { name: 'Manager', count: '4 ta xodim', level: "O'RTA DARAJA", color: 'bg-warning/10 text-warning' },
-    { name: "O'qituvchi", count: '18 ta xodim', level: 'CHEKLANGAN', color: 'bg-success/10 text-success' },
+    { name: 'Administrator', count: '1 ta xodim', level: "TO'LIQ RUXSAT", color: 'bg-primary/10 text-primary' },
+    { name: "O'qituvchi", count: `${faolTeachers} ta xodim`, level: 'CHEKLANGAN', color: 'bg-success/10 text-success' },
   ];
 
   return (
@@ -57,9 +63,8 @@ const SettingsPage = () => {
           <h2 className="text-lg font-semibold text-foreground mb-1">Markaz ma'lumotlari</h2>
           <p className="text-sm text-muted-foreground mb-6">Asosiy markaz rekvizitlari va aloqa ma'lumotlari</p>
           <div className="flex gap-6">
-            <div className="w-32 h-32 border-2 border-dashed border-border rounded-xl flex flex-col items-center justify-center text-muted-foreground cursor-pointer hover:border-primary/50">
-              <Upload className="h-6 w-6 mb-2" />
-              <span className="text-xs">YUKLASH</span>
+            <div className="w-32 h-32 border-2 border-border rounded-xl flex items-center justify-center overflow-hidden bg-background">
+              <img src={logoImg} alt="IT SAF CENTER logo" className="w-full h-full object-contain p-2" />
             </div>
             <div className="flex-1 grid grid-cols-2 gap-4">
               <div>
@@ -125,6 +130,11 @@ const SettingsPage = () => {
         <div className="bg-card rounded-xl border border-border p-6">
           <h2 className="text-lg font-semibold text-foreground mb-1">Tizim konfiguratsiyasi</h2>
           <p className="text-sm text-muted-foreground mb-6">O'quv jarayoni parametrlari</p>
+
+          <div className="mb-4 p-3 rounded-lg bg-accent/50 text-sm text-accent-foreground">
+            Joriy valyuta: <strong>{local.currency} ({getCurrencySymbol()})</strong> — bu butun tizimda qo'llaniladi.
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="text-xs font-semibold text-muted-foreground tracking-wider block mb-1">VALYUTA</label>
@@ -159,19 +169,14 @@ const SettingsPage = () => {
 
       {activeTab === 'rollar' && (
         <div className="bg-card rounded-xl border border-border p-6">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-lg font-semibold text-foreground">Foydalanuvchi rollari</h2>
-              <p className="text-sm text-muted-foreground">Kirish huquqlari va ruxsatnomalar</p>
-            </div>
-            <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-foreground text-card text-sm font-medium hover:opacity-90">
-              + Yangi rol qo'shish
-            </button>
+          <div className="mb-6">
+            <h2 className="text-lg font-semibold text-foreground">Foydalanuvchi rollari</h2>
+            <p className="text-sm text-muted-foreground">Kirish huquqlari va ruxsatnomalar</p>
           </div>
           <table className="w-full">
             <thead>
               <tr className="border-b border-border">
-                {['ROL NOMI', 'XODIMLAR SONI', 'RUXSAT DARAJASI', 'AMALLAR'].map(h => (
+                {['ROL NOMI', 'XODIMLAR SONI', 'RUXSAT DARAJASI'].map(h => (
                   <th key={h} className="text-left text-xs font-semibold text-muted-foreground tracking-wider p-4">{h}</th>
                 ))}
               </tr>
@@ -182,7 +187,6 @@ const SettingsPage = () => {
                   <td className="p-4 font-medium text-foreground">{role.name}</td>
                   <td className="p-4 text-muted-foreground">{role.count}</td>
                   <td className="p-4"><span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${role.color}`}>{role.level}</span></td>
-                  <td className="p-4"><button className="text-muted-foreground hover:text-foreground"><Pencil className="h-4 w-4" /></button></td>
                 </tr>
               ))}
             </tbody>
