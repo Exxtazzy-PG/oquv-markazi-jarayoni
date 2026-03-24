@@ -39,12 +39,27 @@ const Attendance = () => {
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (rowMenuRef.current && !rowMenuRef.current.contains(e.target as Node)) setRowMenuOpen(null);
+      if (rowMenuRef.current && !rowMenuRef.current.contains(e.target as Node)) {
+        setRowMenuOpen(null);
+        setMenuPos(null);
+      }
       if (topMenuRef.current && !topMenuRef.current.contains(e.target as Node)) setMenuOpen(false);
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
+
+  const handleRowMenuToggle = useCallback((studentId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (rowMenuOpen === studentId) {
+      setRowMenuOpen(null);
+      setMenuPos(null);
+    } else {
+      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+      setMenuPos({ top: rect.bottom + 4, left: rect.right - 176 });
+      setRowMenuOpen(studentId);
+    }
+  }, [rowMenuOpen]);
 
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const monthName = new Date(year, month).toLocaleDateString('uz-UZ', { month: 'long' });
