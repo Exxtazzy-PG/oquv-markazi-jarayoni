@@ -118,9 +118,9 @@ export const initialStudents: Student[] = studentNames.map((name, i) => ({
 }));
 
 export const initialSettings: Settings = {
-  centerName: 'Cambridge Learning Center',
+  centerName: 'IT SAF CENTER',
   phone: '+998 71 200 00 00',
-  email: 'info@cambridge.uz',
+  email: 'info@itsaf.uz',
   address: "Toshkent sh., Yunusobod tumani, 4-kvartal, 14-uy",
   inn: '123 456 789',
   currency: 'UZS',
