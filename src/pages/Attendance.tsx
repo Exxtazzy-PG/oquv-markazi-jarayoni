@@ -10,7 +10,8 @@ const Attendance = () => {
   const { groupId } = useParams<{ groupId: string }>();
   const navigate = useNavigate();
   const { groups, students, teachers, attendance, setAttendance, updateGroup, addStudent, deleteStudent, updateStudent } = useData();
-  const menuRef = useRef<HTMLDivElement>(null);
+  const topMenuRef = useRef<HTMLDivElement>(null);
+  const rowMenuRef = useRef<HTMLDivElement>(null);
   const [tab, setTab] = useState<'jurnal' | 'statistika'>('jurnal');
   const [month, setMonth] = useState(new Date().getMonth());
   const [year, setYear] = useState(new Date().getFullYear());
