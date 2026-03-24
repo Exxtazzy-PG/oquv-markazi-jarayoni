@@ -37,7 +37,8 @@ const Attendance = () => {
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setRowMenuOpen(null);
+      if (rowMenuRef.current && !rowMenuRef.current.contains(e.target as Node)) setRowMenuOpen(null);
+      if (topMenuRef.current && !topMenuRef.current.contains(e.target as Node)) setMenuOpen(false);
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
