@@ -160,18 +160,20 @@ const Teachers = () => {
                     </td>
                     <td className="p-4 text-foreground">{teacher.phone}</td>
                     <td className="p-4">
-                      <select
-                        value={teacher.status}
-                        onChange={e => {
-                          const value = e.target.value as 'faol' | 'dam_olishda';
-                          updateTeacher(teacher.id, { status: value });
-                          toast({ title: 'Holat yangilandi', description: `${teacher.name}: ${value === 'faol' ? 'FAOL' : 'DAM OLISHDA'}` });
+                      <button
+                        onClick={() => {
+                          const next = teacher.status === 'faol' ? 'dam_olishda' : 'faol';
+                          updateTeacher(teacher.id, { status: next });
+                          toast({ title: 'Holat yangilandi', description: `${teacher.name}: ${next === 'faol' ? 'FAOL' : 'DAM OLISHDA'}` });
                         }}
-                        className="px-3 py-1.5 rounded-lg border border-input bg-background text-foreground text-xs font-semibold"
+                        className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors ${
+                          teacher.status === 'faol'
+                            ? 'bg-success/10 text-success hover:bg-success/20'
+                            : 'bg-warning/10 text-warning hover:bg-warning/20'
+                        }`}
                       >
-                        <option value="faol">FAOL</option>
-                        <option value="dam_olishda">DAM OLISHDA</option>
-                      </select>
+                        {teacher.status === 'faol' ? 'FAOL' : 'DAM OLISHDA'}
+                      </button>
                     </td>
                     <td className="p-4">
                       <div className="flex items-center gap-2 justify-end">

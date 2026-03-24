@@ -10,7 +10,8 @@ const Attendance = () => {
   const { groupId } = useParams<{ groupId: string }>();
   const navigate = useNavigate();
   const { groups, students, teachers, attendance, setAttendance, updateGroup, addStudent, deleteStudent, updateStudent } = useData();
-  const menuRef = useRef<HTMLDivElement>(null);
+  const topMenuRef = useRef<HTMLDivElement>(null);
+  const rowMenuRef = useRef<HTMLDivElement>(null);
   const [tab, setTab] = useState<'jurnal' | 'statistika'>('jurnal');
   const [month, setMonth] = useState(new Date().getMonth());
   const [year, setYear] = useState(new Date().getFullYear());
@@ -36,7 +37,8 @@ const Attendance = () => {
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setRowMenuOpen(null);
+      if (rowMenuRef.current && !rowMenuRef.current.contains(e.target as Node)) setRowMenuOpen(null);
+      if (topMenuRef.current && !topMenuRef.current.contains(e.target as Node)) setMenuOpen(false);
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
@@ -161,7 +163,7 @@ const Attendance = () => {
           <button onClick={handleSave} className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90">
             <Save className="h-4 w-4" /> Saqlash
           </button>
-          <div className="relative">
+          <div className="relative" ref={topMenuRef}>
             <button onClick={() => setMenuOpen(!menuOpen)} className="p-2 rounded-lg border border-border hover:bg-muted"><MoreVertical className="h-4 w-4" /></button>
             {menuOpen && (
               <div className="absolute right-0 top-10 bg-card border border-border rounded-lg shadow-lg py-1 z-10 w-48">
@@ -214,8 +216,8 @@ const Attendance = () => {
                           <p className="text-xs text-muted-foreground">{student.status === 'faol' ? 'ACTIVE' : 'INACTIVE'}</p>
                         </div>
                       </div>
-                      <div className="relative shrink-0" ref={rowMenuOpen === student.id ? menuRef : undefined}>
-                        <button onClick={() => setRowMenuOpen(rowMenuOpen === student.id ? null : student.id)} className="p-1 rounded-lg hover:bg-muted text-muted-foreground">
+                      <div className="relative shrink-0" ref={rowMenuOpen === student.id ? rowMenuRef : undefined}>
+                        <button onClick={(e) => { e.stopPropagation(); setRowMenuOpen(rowMenuOpen === student.id ? null : student.id); }} className="p-1 rounded-lg hover:bg-muted text-muted-foreground">
                           <MoreVertical className="h-4 w-4" />
                         </button>
                         {rowMenuOpen === student.id && (

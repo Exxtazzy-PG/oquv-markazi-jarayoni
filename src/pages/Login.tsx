@@ -60,7 +60,8 @@ const Login = () => {
         <div className="mt-6 p-4 rounded-lg bg-muted">
           <p className="text-xs font-medium text-muted-foreground mb-2">Test akkauntlar:</p>
           <p className="text-xs text-muted-foreground">Admin: <span className="font-mono text-foreground">admin / admin123</span></p>
-          <p className="text-xs text-muted-foreground">Ustoz: <span className="font-mono text-foreground">telefon raqami / telefon raqami</span></p>
+          <p className="text-xs text-muted-foreground">Ustoz: <span className="font-mono text-foreground">998901234567 / 998901234567</span></p>
+          <p className="text-xs text-muted-foreground mt-1 italic">O'qituvchi login = telefon raqamidagi raqamlar</p>
         </div>
       </div>
     </div>
