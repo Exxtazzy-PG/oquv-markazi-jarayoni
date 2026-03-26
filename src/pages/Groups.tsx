@@ -37,7 +37,7 @@ const Groups = () => {
 
   const handleAdd = () => {
     if (!newGroup.name) return;
-    addGroup({ ...newGroup, status: 'faol', icon: '📚', color: 'bg-blue-100' });
+    addGroup({ ...newGroup, status: 'faol', icon: 'book-open', color: 'bg-blue-100' });
     setNewGroup({ name: '', course: '', teacherId: teachers[0]?.id || '', days: 'Dush, Chor, Juma', time: '14:00 - 16:00', maxStudents: 15 });
     setShowAddModal(false);
   };
