@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react';
 import { useData } from '@/contexts/DataContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { BookOpen, FileText, ClipboardCheck, Calendar, ChevronDown, ChevronRight, Plus, Trash2, Check, X, Pencil, Trophy, TrendingUp, BarChart3 } from 'lucide-react';
+import { BookOpen, FileText, ClipboardCheck, Calendar, ChevronDown, ChevronRight, Plus, Trash2, Check, X, Pencil, Trophy, TrendingUp, BarChart3, GraduationCap, Users } from 'lucide-react';
+import { GroupIcon } from '@/components/GroupIcon';
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, addDays, isWithinInterval } from 'date-fns';
 import { uz } from 'date-fns/locale';
 import { motion, AnimatePresence } from 'framer-motion';
