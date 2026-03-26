@@ -36,6 +36,7 @@ function AppRoutes() {
           <Route path="/attendance/:groupId" element={<Attendance />} />
           <Route path="/teacher/:teacherId" element={<TeacherProfile />} />
           <Route path="/teacher-attendance" element={<TeacherAttendance />} />
+          <Route path="/lesson-schedule" element={<LessonSchedule />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

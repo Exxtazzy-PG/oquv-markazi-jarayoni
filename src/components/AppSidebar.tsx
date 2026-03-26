@@ -20,6 +20,7 @@ const adminItems = [
 
 const teacherItems = [
   { title: 'Guruhlar', url: '/groups', icon: Layers },
+  { title: 'Darslar Jadvali', url: '/lesson-schedule', icon: CalendarDays },
 ];
 
 export function AppSidebar() {

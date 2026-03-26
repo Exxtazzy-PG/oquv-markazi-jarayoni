@@ -105,17 +105,57 @@ const studentNames = [
   'Xasanova Mohinur', 'Sobirov Islom',
 ];
 
-export const initialStudents: Student[] = studentNames.map((name, i) => ({
-  id: `s${i + 1}`,
-  name,
-  phone: `+998 ${90 + (i % 5)}${i} ${100 + i * 3} ${10 + i * 2} ${50 + i}`,
-  groupId: initialGroups[i % initialGroups.length].id,
-  balance: [1200000, -450000, 0, 50000, 800000, -200000, 350000, 0, 1500000, -100000][i % 10],
-  status: i === 13 ? 'arxiv' : 'faol',
-  lastAction: ['Bugun, 14:20', 'Kecha, 18:00', '05 Okt, 10:15', '04 Okt, 15:40', 'Bugun, 09:30'][i % 5],
-  lastActionType: ['DARSDA QATNASHDI', 'SMS YUBORILDI', "TO'LOV AMALGA OSHIRDI", 'DARSDA QATNASHDI', 'DARSGA KELDI'][i % 5],
-  photo: '',
-}));
+// Generate more students: 10-15-20 per group
+const extraStudentNames = [
+  'Sardor Alimov', 'Nilufar Rashidova', 'Bekzod Tursunov', 'Shaxlo Mirzayeva',
+  'Dilmurod Xasanov', 'Gavhar Normatova', 'Shohrux Abdullayev', 'Zilola Ergasheva',
+  'Nodir Karimov', 'Maftuna Saydullayeva', 'Asilbek Jurayev', 'Mohira Umarova',
+  'Eldor Botirov', 'Kamola Xolmatova', 'Shamsiddin Raxmatov', 'Barno Qosimova',
+  'Ibrohim Toshpulatov', 'Yulduz Kamalova', 'Ravshan Sobirov', 'Gulbahor Aliyeva',
+  'Sanjar Murodov', 'Feruza Nishonova', 'Oybek Rahmonov', 'Dilorom Usmonova',
+  'Javlon Xoliqov', 'Madina Sultonova', 'Akbar Mirzoqulov', 'Nafisa Jumayeva',
+  'Ulugbek Rahimov', 'Shirin Iskandarova', 'Behruz Azimov', 'Sabrina Qurbonova',
+  'Tohir Salimov', 'Zarina Ibragimova', 'Farrux Hamidov', 'Laylo Mahmudova',
+  'Husan Olimov', 'Sitora Nabiyeva', 'Abror Nurmatov', 'Dilnoza Saidova',
+  'Odil Ruziyev', 'Zamira Toxirova', 'Komil Sattarov', 'Xurshida Qoraboyeva',
+  'Mirzo Sharipov', 'Aziza Turdiyeva', 'Dostonbek Umidov', 'Shoira Mirkomilova',
+  'Elbek Choriyev', 'Nargiza Alimova', 'Umidjon Xaydarov', 'Hilola Jaloliddinova',
+  'Botir Raximov', 'Malika Qodirberdiyeva', 'Sunnat Yusupov', 'Sevinch Otajonova',
+  'Lazar Nurullayev', 'Robiya Inomova', 'Temur Baxtiyorov', 'Ozoda Ergashova',
+  'Doniyor Abduraxmonov', 'Kumush Abdurahmonova', 'Otabek Ismoilov', 'Mohinur Sharipova',
+  'Murodjon Qobilov', 'Nasiba Xolmatova', 'Xurshid Tuxtasinov', 'Iroda Qosimova',
+  'Furqat Mamatov', 'Surayyo Ahmedova', 'Jasurbek Raxmonov', 'Dilrabo Nurullayeva',
+  'Sarvarbek Xolmatov', 'Barcha Toshmatova', 'Baxtiyor Solijonov', 'Shahzoda Karimova',
+  'Muzaffar Rustamov', 'Gulasal Ergasheva', 'Davron Xolmurodov', 'Lobar Haydarova',
+  'Mansurbek Toshpulatov', 'Nozima Alimova', 'Shuhrat Mirzayev', 'Zulfizar Juraeva',
+  'Ortiq Nurmatov', 'Oydin Mahmudova', 'Islomjon Turdiqulov', 'Farzona Saidova',
+  'Azamjon Ibragimov', 'Gulnora Xasanova',
+];
+
+const allNames = [...studentNames, ...extraStudentNames];
+const groupStudentCounts = [12, 15, 10, 14, 20, 18, 13, 11, 16, 10]; // 10-20 per group
+
+export const initialStudents: Student[] = (() => {
+  const result: Student[] = [];
+  let nameIdx = 0;
+  initialGroups.forEach((group, gi) => {
+    const count = groupStudentCounts[gi] || 12;
+    for (let j = 0; j < count && nameIdx < allNames.length; j++, nameIdx++) {
+      result.push({
+        id: `s${nameIdx + 1}`,
+        name: allNames[nameIdx],
+        phone: `+998 ${90 + (nameIdx % 5)}${nameIdx} ${100 + nameIdx * 3} ${10 + nameIdx * 2} ${50 + nameIdx}`,
+        groupId: group.id,
+        balance: [1200000, -450000, 0, 50000, 800000, -200000, 350000, 0, 1500000, -100000][nameIdx % 10],
+        status: nameIdx === 13 ? 'arxiv' : 'faol',
+        lastAction: ['Bugun, 14:20', 'Kecha, 18:00', '05 Okt, 10:15', '04 Okt, 15:40', 'Bugun, 09:30'][nameIdx % 5],
+        lastActionType: ['DARSDA QATNASHDI', 'SMS YUBORILDI', "TO'LOV AMALGA OSHIRDI", 'DARSDA QATNASHDI', 'DARSGA KELDI'][nameIdx % 5],
+        photo: '',
+      });
+    }
+  });
+  return result;
+})();
 
 export const initialSettings: Settings = {
   centerName: 'IT SAF CENTER',
