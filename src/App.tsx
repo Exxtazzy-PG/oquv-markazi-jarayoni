@@ -15,6 +15,7 @@ import Attendance from "./pages/Attendance";
 import TeacherAttendance from "./pages/TeacherAttendance";
 import TeacherProfile from "./pages/TeacherProfile";
 import SettingsPage from "./pages/Settings";
+import LessonSchedule from "./pages/LessonSchedule";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ function AppRoutes() {
           <Route path="/attendance/:groupId" element={<Attendance />} />
           <Route path="/teacher/:teacherId" element={<TeacherProfile />} />
           <Route path="/teacher-attendance" element={<TeacherAttendance />} />
+          <Route path="/lesson-schedule" element={<LessonSchedule />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

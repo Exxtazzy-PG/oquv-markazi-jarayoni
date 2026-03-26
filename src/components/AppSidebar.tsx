@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, GraduationCap, Layers, ClipboardList, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, GraduationCap, Layers, ClipboardList, Settings, LogOut, CalendarDays } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useAuth } from '@/contexts/AuthContext';
 import { useData } from '@/contexts/DataContext';
@@ -14,11 +14,13 @@ const adminItems = [
   { title: "O'qituvchilar", url: '/teachers', icon: GraduationCap },
   { title: 'Guruhlar', url: '/groups', icon: Layers },
   { title: 'Ustozlar Davomati', url: '/teacher-attendance', icon: ClipboardList },
+  { title: 'Darslar Jadvali', url: '/lesson-schedule', icon: CalendarDays },
   { title: 'Sozlamalar', url: '/settings', icon: Settings },
 ];
 
 const teacherItems = [
   { title: 'Guruhlar', url: '/groups', icon: Layers },
+  { title: 'Darslar Jadvali', url: '/lesson-schedule', icon: CalendarDays },
 ];
 
 export function AppSidebar() {
