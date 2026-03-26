@@ -14,6 +14,7 @@ const adminItems = [
   { title: "O'qituvchilar", url: '/teachers', icon: GraduationCap },
   { title: 'Guruhlar', url: '/groups', icon: Layers },
   { title: 'Ustozlar Davomati', url: '/teacher-attendance', icon: ClipboardList },
+  { title: 'Darslar Jadvali', url: '/lesson-schedule', icon: CalendarDays },
   { title: 'Sozlamalar', url: '/settings', icon: Settings },
 ];
 
