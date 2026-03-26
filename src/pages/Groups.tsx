@@ -3,6 +3,7 @@ import { useData } from '@/contexts/DataContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Search, Plus, MoreHorizontal, User, MapPin, Calendar, Clock, X, Trash2, Pencil } from 'lucide-react';
+import { GroupIcon } from '@/components/GroupIcon';
 
 const Groups = () => {
   const { groups, teachers, students, addGroup, updateGroup, deleteGroup } = useData();
@@ -36,7 +37,7 @@ const Groups = () => {
 
   const handleAdd = () => {
     if (!newGroup.name) return;
-    addGroup({ ...newGroup, status: 'faol', icon: '📚', color: 'bg-blue-100' });
+    addGroup({ ...newGroup, status: 'faol', icon: 'book-open', color: 'bg-blue-100' });
     setNewGroup({ name: '', course: '', teacherId: teachers[0]?.id || '', days: 'Dush, Chor, Juma', time: '14:00 - 16:00', maxStudents: 15 });
     setShowAddModal(false);
   };
@@ -111,7 +112,9 @@ const Groups = () => {
 
               <div className="cursor-pointer" onClick={() => navigate(`/attendance/${group.id}`)}>
                 <div className="flex items-center gap-3 mb-3">
-                  <span className="text-2xl">{group.icon}</span>
+                  <div className="h-10 w-10 rounded-lg bg-accent flex items-center justify-center text-primary">
+                    <GroupIcon name={group.icon} className="h-5 w-5" />
+                  </div>
                   <div>
                     <h3 className="font-bold text-foreground">{group.name}</h3>
                     <button onClick={(e) => { e.stopPropagation(); cycleStatus(group.id); }}

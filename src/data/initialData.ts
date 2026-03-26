@@ -82,16 +82,16 @@ export const initialTeachers: Teacher[] = [
 ];
 
 export const initialGroups: Group[] = [
-  { id: 'g1', name: 'IELTS Foundation', course: 'IELTS Foundation', teacherId: 't7', days: 'Dush, Chor, Juma', time: '18:30 - 20:30', maxStudents: 12, status: 'faol', icon: '🌐', color: 'bg-blue-100' },
-  { id: 'g2', name: 'Frontend Bootcamp #12', course: 'React.js Advanced', teacherId: 't5', days: 'Dush, Chor, Juma', time: '14:00 - 16:00', maxStudents: 15, status: 'faol', icon: '💻', color: 'bg-sky-100' },
-  { id: 'g3', name: 'IELTS Masterclass', course: 'IELTS Masterclass', teacherId: 't1', days: 'Sesh, Pay, Shan', time: '09:00 - 10:30', maxStudents: 15, status: 'faol', icon: '📚', color: 'bg-green-100' },
-  { id: 'g4', name: 'UI/UX Dizayn #05', course: 'UI/UX Designer', teacherId: 't6', days: 'Sesh, Pay, Shan', time: '10:00 - 12:00', maxStudents: 15, status: 'faol', icon: '🎨', color: 'bg-yellow-100' },
-  { id: 'g5', name: 'Logika & Math', course: 'Matematika', teacherId: 't2', days: 'Dush, Chor, Juma', time: '14:00 - 15:30', maxStudents: 20, status: 'faol', icon: '🧮', color: 'bg-purple-100' },
-  { id: 'g6', name: 'Fizika Asoslari', course: 'Fizika', teacherId: 't3', days: 'Sesh, Pay, Shan', time: '16:00 - 17:30', maxStudents: 18, status: 'kutilmoqda', icon: '⚛️', color: 'bg-orange-100' },
-  { id: 'g7', name: "Ona tili va Adabiyot", course: 'Ona tili', teacherId: 't4', days: 'Dush, Chor, Juma', time: '09:00 - 10:30', maxStudents: 20, status: 'faol', icon: '📖', color: 'bg-pink-100' },
-  { id: 'g8', name: 'Python Core #22', course: 'Backend Core', teacherId: 't5', days: 'Sesh, Pay, Shan', time: '16:00 - 18:00', maxStudents: 15, status: 'faol', icon: '🐍', color: 'bg-emerald-100' },
-  { id: 'g9', name: 'Logika va Mantiq', course: 'Logika & Math', teacherId: 't8', days: 'Dush, Chor, Juma', time: '14:00 - 15:30', maxStudents: 20, status: 'yakunlangan', icon: '🧩', color: 'bg-indigo-100' },
-  { id: 'g10', name: '3ds Max & Vray', course: '3D Modellashtirish', teacherId: 't9', days: 'Dush, Chor, Juma', time: '14:00 - 16:00', maxStudents: 10, status: 'faol', icon: '🏗️', color: 'bg-rose-100' },
+  { id: 'g1', name: 'IELTS Foundation', course: 'IELTS Foundation', teacherId: 't7', days: 'Dush, Chor, Juma', time: '18:30 - 20:30', maxStudents: 12, status: 'faol', icon: 'globe', color: 'bg-blue-100' },
+  { id: 'g2', name: 'Frontend Bootcamp #12', course: 'React.js Advanced', teacherId: 't5', days: 'Dush, Chor, Juma', time: '14:00 - 16:00', maxStudents: 15, status: 'faol', icon: 'monitor', color: 'bg-sky-100' },
+  { id: 'g3', name: 'IELTS Masterclass', course: 'IELTS Masterclass', teacherId: 't1', days: 'Sesh, Pay, Shan', time: '09:00 - 10:30', maxStudents: 15, status: 'faol', icon: 'book-open', color: 'bg-green-100' },
+  { id: 'g4', name: 'UI/UX Dizayn #05', course: 'UI/UX Designer', teacherId: 't6', days: 'Sesh, Pay, Shan', time: '10:00 - 12:00', maxStudents: 15, status: 'faol', icon: 'palette', color: 'bg-yellow-100' },
+  { id: 'g5', name: 'Logika & Math', course: 'Matematika', teacherId: 't2', days: 'Dush, Chor, Juma', time: '14:00 - 15:30', maxStudents: 20, status: 'faol', icon: 'calculator', color: 'bg-purple-100' },
+  { id: 'g6', name: 'Fizika Asoslari', course: 'Fizika', teacherId: 't3', days: 'Sesh, Pay, Shan', time: '16:00 - 17:30', maxStudents: 18, status: 'kutilmoqda', icon: 'atom', color: 'bg-orange-100' },
+  { id: 'g7', name: "Ona tili va Adabiyot", course: 'Ona tili', teacherId: 't4', days: 'Dush, Chor, Juma', time: '09:00 - 10:30', maxStudents: 20, status: 'faol', icon: 'book-text', color: 'bg-pink-100' },
+  { id: 'g8', name: 'Python Core #22', course: 'Backend Core', teacherId: 't5', days: 'Sesh, Pay, Shan', time: '16:00 - 18:00', maxStudents: 15, status: 'faol', icon: 'code', color: 'bg-emerald-100' },
+  { id: 'g9', name: 'Logika va Mantiq', course: 'Logika & Math', teacherId: 't8', days: 'Dush, Chor, Juma', time: '14:00 - 15:30', maxStudents: 20, status: 'yakunlangan', icon: 'puzzle', color: 'bg-indigo-100' },
+  { id: 'g10', name: '3ds Max & Vray', course: '3D Modellashtirish', teacherId: 't9', days: 'Dush, Chor, Juma', time: '14:00 - 16:00', maxStudents: 10, status: 'faol', icon: 'building', color: 'bg-rose-100' },
 ];
 
 const studentNames = [

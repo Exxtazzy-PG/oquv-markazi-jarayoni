@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react';
 import { useData } from '@/contexts/DataContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { BookOpen, FileText, ClipboardCheck, Calendar, ChevronDown, ChevronRight, Plus, Trash2, Check, X, Pencil, Trophy, TrendingUp, BarChart3 } from 'lucide-react';
+import { BookOpen, FileText, ClipboardCheck, Calendar, ChevronDown, ChevronRight, Plus, Trash2, Check, X, Pencil, Trophy, TrendingUp, BarChart3, GraduationCap, Users } from 'lucide-react';
+import { GroupIcon } from '@/components/GroupIcon';
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, addDays, isWithinInterval } from 'date-fns';
 import { uz } from 'date-fns/locale';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -164,7 +165,7 @@ const LessonSchedule = () => {
     <div className="animate-fade-in">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">📅 Darslar Jadvali</h1>
+          <h1 className="text-2xl font-bold text-foreground flex items-center gap-2"><Calendar className="h-6 w-6 text-primary" /> Darslar Jadvali</h1>
           <p className="text-sm text-muted-foreground mt-1">Mavzular, testlar va nazorat ishlarini boshqaring</p>
         </div>
       </div>
@@ -181,7 +182,7 @@ const LessonSchedule = () => {
                 : 'bg-card border border-border text-muted-foreground hover:bg-accent'
             }`}
           >
-            {g.icon} {g.name}
+            <GroupIcon name={g.icon} className="h-4 w-4" /> {g.name}
           </button>
         ))}
       </div>
@@ -238,7 +239,9 @@ const LessonSchedule = () => {
 
           {/* Group info bar */}
           <div className="bg-card border border-border rounded-xl p-4 mb-6 flex flex-wrap items-center gap-4 text-sm">
-            <span className="text-2xl">{selectedGroup.icon}</span>
+            <div className="h-10 w-10 rounded-lg bg-accent flex items-center justify-center text-primary">
+              <GroupIcon name={selectedGroup.icon} className="h-5 w-5" />
+            </div>
             <div>
               <p className="font-semibold text-foreground">{selectedGroup.name}</p>
               <p className="text-muted-foreground">{selectedGroup.course}</p>
@@ -248,9 +251,9 @@ const LessonSchedule = () => {
               <Calendar className="h-4 w-4 inline mr-1" />{selectedGroup.days} • {selectedGroup.time}
             </div>
             <div className="h-8 w-px bg-border hidden sm:block" />
-            <div className="text-muted-foreground">👨‍🏫 {teacher?.name || '-'}</div>
+            <div className="text-muted-foreground flex items-center gap-1"><GraduationCap className="h-4 w-4" /> {teacher?.name || '-'}</div>
             <div className="h-8 w-px bg-border hidden sm:block" />
-            <div className="text-muted-foreground">👥 {groupStudents.length} ta talaba</div>
+            <div className="text-muted-foreground flex items-center gap-1"><Users className="h-4 w-4" /> {groupStudents.length} ta talaba</div>
           </div>
 
           {/* Tabs */}

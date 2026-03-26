@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useData } from '@/contexts/DataContext';
-import { Settings as SettingsIcon, Building, Bell, Cog, Users, Save } from 'lucide-react';
+import { Settings as SettingsIcon, Building, Bell, Cog, Users, Save, MessageSquare, BellRing, CreditCard } from 'lucide-react';
 import logoImg from '@/assets/logo.png';
 
 const SettingsPage = () => {
@@ -103,13 +103,15 @@ const SettingsPage = () => {
           <p className="text-sm text-muted-foreground mb-6">Avtomatlashtirilgan xabarlar</p>
           <div className="space-y-4">
             {[
-              { key: 'smsEnabled', label: 'SMS xabarnomalar', desc: 'Avtomatik SMS yuborish', icon: '💬' },
-              { key: 'telegramEnabled', label: 'Telegram bot', desc: 'Bot orqali xabardor qilish', icon: '💬' },
-              { key: 'paymentReminder', label: "To'lov eslatmalari", desc: 'Qarzdorlik haqida eslatish', icon: '🔔' },
+              { key: 'smsEnabled', label: 'SMS xabarnomalar', desc: 'Avtomatik SMS yuborish', Icon: MessageSquare },
+              { key: 'telegramEnabled', label: 'Telegram bot', desc: 'Bot orqali xabardor qilish', Icon: MessageSquare },
+              { key: 'paymentReminder', label: "To'lov eslatmalari", desc: 'Qarzdorlik haqida eslatish', Icon: BellRing },
             ].map(item => (
               <div key={item.key} className="flex items-center justify-between py-3 border-b border-border last:border-0">
                 <div className="flex items-center gap-3">
-                  <span className="text-xl">{item.icon}</span>
+                  <div className="h-9 w-9 rounded-lg bg-accent flex items-center justify-center text-primary">
+                    <item.Icon className="h-4 w-4" />
+                  </div>
                   <div>
                     <p className="font-medium text-foreground">{item.label}</p>
                     <p className="text-xs text-muted-foreground">{item.desc}</p>
