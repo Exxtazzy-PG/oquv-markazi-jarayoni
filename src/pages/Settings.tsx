@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useData } from '@/contexts/DataContext';
-import { Settings as SettingsIcon, Building, Bell, Cog, Users, Save } from 'lucide-react';
+import { Settings as SettingsIcon, Building, Bell, Cog, Users, Save, MessageSquare, BellRing, CreditCard } from 'lucide-react';
 import logoImg from '@/assets/logo.png';
 
 const SettingsPage = () => {
