@@ -182,7 +182,7 @@ const LessonSchedule = () => {
                 : 'bg-card border border-border text-muted-foreground hover:bg-accent'
             }`}
           >
-            {g.icon} {g.name}
+            <GroupIcon name={g.icon} className="h-4 w-4" /> {g.name}
           </button>
         ))}
       </div>
