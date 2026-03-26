@@ -74,7 +74,7 @@ const TeacherProfile = () => {
                   onClick={() => navigate(`/attendance/${g.id}`)}>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-medium text-foreground">{g.icon} {g.name}</p>
+                      <p className="font-medium text-foreground">{g.name}</p>
                       <p className="text-xs text-muted-foreground">{g.days} • {g.time}</p>
                     </div>
                     <div className="text-right">

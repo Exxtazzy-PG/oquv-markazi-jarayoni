@@ -112,7 +112,9 @@ const Groups = () => {
 
               <div className="cursor-pointer" onClick={() => navigate(`/attendance/${group.id}`)}>
                 <div className="flex items-center gap-3 mb-3">
-                  <span className="text-2xl">{group.icon}</span>
+                  <div className="h-10 w-10 rounded-lg bg-accent flex items-center justify-center text-primary">
+                    <GroupIcon name={group.icon} className="h-5 w-5" />
+                  </div>
                   <div>
                     <h3 className="font-bold text-foreground">{group.name}</h3>
                     <button onClick={(e) => { e.stopPropagation(); cycleStatus(group.id); }}

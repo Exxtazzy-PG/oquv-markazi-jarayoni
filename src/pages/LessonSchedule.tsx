@@ -251,9 +251,9 @@ const LessonSchedule = () => {
               <Calendar className="h-4 w-4 inline mr-1" />{selectedGroup.days} • {selectedGroup.time}
             </div>
             <div className="h-8 w-px bg-border hidden sm:block" />
-            <div className="text-muted-foreground">👨‍🏫 {teacher?.name || '-'}</div>
+            <div className="text-muted-foreground flex items-center gap-1"><GraduationCap className="h-4 w-4" /> {teacher?.name || '-'}</div>
             <div className="h-8 w-px bg-border hidden sm:block" />
-            <div className="text-muted-foreground">👥 {groupStudents.length} ta talaba</div>
+            <div className="text-muted-foreground flex items-center gap-1"><Users className="h-4 w-4" /> {groupStudents.length} ta talaba</div>
           </div>
 
           {/* Tabs */}

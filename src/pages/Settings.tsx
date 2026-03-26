@@ -109,7 +109,9 @@ const SettingsPage = () => {
             ].map(item => (
               <div key={item.key} className="flex items-center justify-between py-3 border-b border-border last:border-0">
                 <div className="flex items-center gap-3">
-                  <span className="text-xl">{item.icon}</span>
+                  <div className="h-9 w-9 rounded-lg bg-accent flex items-center justify-center text-primary">
+                    <item.Icon className="h-4 w-4" />
+                  </div>
                   <div>
                     <p className="font-medium text-foreground">{item.label}</p>
                     <p className="text-xs text-muted-foreground">{item.desc}</p>
