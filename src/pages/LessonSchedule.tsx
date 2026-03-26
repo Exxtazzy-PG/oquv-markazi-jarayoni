@@ -239,7 +239,9 @@ const LessonSchedule = () => {
 
           {/* Group info bar */}
           <div className="bg-card border border-border rounded-xl p-4 mb-6 flex flex-wrap items-center gap-4 text-sm">
-            <span className="text-2xl">{selectedGroup.icon}</span>
+            <div className="h-10 w-10 rounded-lg bg-accent flex items-center justify-center text-primary">
+              <GroupIcon name={selectedGroup.icon} className="h-5 w-5" />
+            </div>
             <div>
               <p className="font-semibold text-foreground">{selectedGroup.name}</p>
               <p className="text-muted-foreground">{selectedGroup.course}</p>
