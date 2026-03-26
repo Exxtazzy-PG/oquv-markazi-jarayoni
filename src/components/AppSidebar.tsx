@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, GraduationCap, Layers, ClipboardList, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, GraduationCap, Layers, ClipboardList, Settings, LogOut, CalendarDays } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useAuth } from '@/contexts/AuthContext';
 import { useData } from '@/contexts/DataContext';
