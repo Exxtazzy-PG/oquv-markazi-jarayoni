@@ -3,6 +3,7 @@ import { useData } from '@/contexts/DataContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Search, Plus, MoreHorizontal, User, MapPin, Calendar, Clock, X, Trash2, Pencil } from 'lucide-react';
+import { GroupIcon } from '@/components/GroupIcon';
 
 const Groups = () => {
   const { groups, teachers, students, addGroup, updateGroup, deleteGroup } = useData();
