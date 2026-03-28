@@ -16,6 +16,7 @@ import TeacherAttendance from "./pages/TeacherAttendance";
 import TeacherProfile from "./pages/TeacherProfile";
 import SettingsPage from "./pages/Settings";
 import LessonSchedule from "./pages/LessonSchedule";
+import Finance from "./pages/Finance";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
