@@ -15,6 +15,7 @@ const adminItems = [
   { title: 'Guruhlar', url: '/groups', icon: Layers },
   { title: 'Ustozlar Davomati', url: '/teacher-attendance', icon: ClipboardList },
   { title: 'Darslar Jadvali', url: '/lesson-schedule', icon: CalendarDays },
+  { title: 'Moliya', url: '/finance', icon: Wallet },
   { title: 'Sozlamalar', url: '/settings', icon: Settings },
 ];
 
