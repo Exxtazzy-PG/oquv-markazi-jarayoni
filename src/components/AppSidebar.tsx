@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, GraduationCap, Layers, ClipboardList, Settings, LogOut, CalendarDays } from 'lucide-react';
+import { LayoutDashboard, Users, GraduationCap, Layers, ClipboardList, Settings, LogOut, CalendarDays, Wallet } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useAuth } from '@/contexts/AuthContext';
 import { useData } from '@/contexts/DataContext';
@@ -15,6 +15,7 @@ const adminItems = [
   { title: 'Guruhlar', url: '/groups', icon: Layers },
   { title: 'Ustozlar Davomati', url: '/teacher-attendance', icon: ClipboardList },
   { title: 'Darslar Jadvali', url: '/lesson-schedule', icon: CalendarDays },
+  { title: 'Moliya', url: '/finance', icon: Wallet },
   { title: 'Sozlamalar', url: '/settings', icon: Settings },
 ];
 

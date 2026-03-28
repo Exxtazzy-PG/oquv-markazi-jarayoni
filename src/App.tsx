@@ -16,6 +16,7 @@ import TeacherAttendance from "./pages/TeacherAttendance";
 import TeacherProfile from "./pages/TeacherProfile";
 import SettingsPage from "./pages/Settings";
 import LessonSchedule from "./pages/LessonSchedule";
+import Finance from "./pages/Finance";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -37,6 +38,7 @@ function AppRoutes() {
           <Route path="/teacher/:teacherId" element={<TeacherProfile />} />
           <Route path="/teacher-attendance" element={<TeacherAttendance />} />
           <Route path="/lesson-schedule" element={<LessonSchedule />} />
+          <Route path="/finance" element={user.role === 'admin' ? <Finance /> : <Groups />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
