@@ -154,39 +154,36 @@ const Attendance = () => {
 
   return (
     <div className="animate-fade-in">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4">
-          <button onClick={() => navigate(-1)} className="p-2 rounded-lg hover:bg-muted text-muted-foreground"><ArrowLeft className="h-5 w-5" /></button>
-          <h1 className="text-xl font-bold text-foreground">Davomat Jurnali</h1>
-          <div className="text-sm text-primary font-semibold">{group.name} ({group.time})</div>
-          <div className="flex items-center gap-2">
-            <select value={month} onChange={e => setMonth(Number(e.target.value))}
-              className="px-3 py-1.5 rounded-lg border border-input bg-card text-foreground text-sm">
-              {Array.from({ length: 12 }, (_, i) => (
-                <option key={i} value={i}>{new Date(2024, i).toLocaleDateString('uz-UZ', { month: 'long' })}</option>
-              ))}
-            </select>
-            <select value={year} onChange={e => setYear(Number(e.target.value))}
-              className="px-3 py-1.5 rounded-lg border border-input bg-card text-foreground text-sm">
-              {[2023, 2024, 2025, 2026].map(y => <option key={y} value={y}>{y}</option>)}
-            </select>
+      <div className="flex flex-col gap-3 mb-6">
+        <div className="flex items-center gap-3">
+          <button onClick={() => navigate(-1)} className="p-2 rounded-lg hover:bg-muted text-muted-foreground shrink-0"><ArrowLeft className="h-5 w-5" /></button>
+          <div className="min-w-0">
+            <h1 className="text-lg sm:text-xl font-bold text-foreground truncate">Davomat Jurnali</h1>
+            <p className="text-sm text-primary font-semibold truncate">{group.name} • {group.time}</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="flex border border-border rounded-lg overflow-hidden">
-            <button onClick={() => setTab('jurnal')} className={`px-4 py-1.5 text-sm font-medium ${tab === 'jurnal' ? 'bg-primary text-primary-foreground' : 'bg-card text-foreground'}`}>Jurnal</button>
-            <button onClick={() => setTab('statistika')} className={`px-4 py-1.5 text-sm font-medium ${tab === 'statistika' ? 'bg-primary text-primary-foreground' : 'bg-card text-foreground'}`}>Statistika</button>
+        <div className="flex flex-wrap items-center gap-2">
+          <select value={month} onChange={e => setMonth(Number(e.target.value))}
+            className="input-base w-auto text-xs sm:text-sm">
+            {Array.from({ length: 12 }, (_, i) => (
+              <option key={i} value={i}>{new Date(2024, i).toLocaleDateString('uz-UZ', { month: 'long' })}</option>
+            ))}
+          </select>
+          <select value={year} onChange={e => setYear(Number(e.target.value))}
+            className="input-base w-auto text-xs sm:text-sm">
+            {[2023, 2024, 2025, 2026].map(y => <option key={y} value={y}>{y}</option>)}
+          </select>
+          <div className="flex bg-muted rounded-lg p-0.5 ml-auto">
+            <button onClick={() => setTab('jurnal')} className={`px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-all ${tab === 'jurnal' ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground'}`}>Jurnal</button>
+            <button onClick={() => setTab('statistika')} className={`px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-all ${tab === 'statistika' ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground'}`}>Statistika</button>
           </div>
-          <button onClick={handleSave} className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90">
+          <button onClick={handleSave} className="btn-primary text-xs sm:text-sm">
             <Save className="h-4 w-4" /> Saqlash
           </button>
           <div className="relative" ref={topMenuRef}>
             <button onClick={() => setMenuOpen(!menuOpen)} className="p-2 rounded-lg border border-border hover:bg-muted"><MoreVertical className="h-4 w-4" /></button>
             {menuOpen && (
-              <div className="absolute right-0 top-10 bg-card border border-border rounded-lg shadow-lg py-1 z-10 w-48">
-                <button onClick={() => { navigate(-1); setMenuOpen(false); }} className="w-full text-left px-4 py-2 text-sm hover:bg-muted text-foreground flex items-center gap-2">
-                  <ArrowLeft className="h-3.5 w-3.5" /> Orqaga
-                </button>
+              <div className="absolute right-0 top-10 bg-card border border-border rounded-lg shadow-xl py-1 z-10 w-48">
                 <button onClick={() => { setShowEditModal(true); setMenuOpen(false); }} className="w-full text-left px-4 py-2 text-sm hover:bg-muted text-foreground flex items-center gap-2">
                   <Pencil className="h-3.5 w-3.5" /> Tahrirlash
                 </button>

@@ -161,10 +161,10 @@ const Finance = () => {
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {[
-          { label: 'Jami kirim', value: fmt(totalIncome), icon: TrendingUp, color: 'text-emerald-500 bg-emerald-500/10', change: '+12%' },
-          { label: 'Jami chiqim', value: fmt(totalExpense), icon: TrendingDown, color: 'text-red-500 bg-red-500/10', change: '-5%' },
-          { label: 'Foyda', value: fmt(profit), icon: DollarSign, color: profit >= 0 ? 'text-primary bg-primary/10' : 'text-red-500 bg-red-500/10', change: profit >= 0 ? '+' : '' },
-          { label: 'Qarzdorlik', value: fmt(totalDebt), icon: CreditCard, color: 'text-amber-500 bg-amber-500/10', change: `${debtors.length} ta` },
+          { label: 'Jami kirim', value: fmt(totalIncome), icon: TrendingUp, color: 'text-success bg-success/10', change: '+12%' },
+          { label: 'Jami chiqim', value: fmt(totalExpense), icon: TrendingDown, color: 'text-destructive bg-destructive/10', change: '-5%' },
+          { label: 'Foyda', value: fmt(profit), icon: DollarSign, color: profit >= 0 ? 'text-primary bg-primary/10' : 'text-destructive bg-destructive/10', change: profit >= 0 ? '+' : '' },
+          { label: 'Qarzdorlik', value: fmt(totalDebt), icon: CreditCard, color: 'text-warning bg-warning/10', change: `${debtors.length} ta` },
         ].map((s, i) => (
           <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
             className="bg-card border border-border rounded-xl p-4">
@@ -200,16 +200,16 @@ const Finance = () => {
                   {monthlyTrend.map((m, i) => (
                     <div key={i} className="flex-1 flex flex-col items-center gap-1">
                       <div className="flex gap-1 items-end w-full justify-center" style={{ height: '120px' }}>
-                        <div className="w-3 bg-emerald-500/80 rounded-t transition-all" style={{ height: `${(m.income / maxTrend) * 100}%` }} title={`Kirim: ${fmt(m.income)}`} />
-                        <div className="w-3 bg-red-400/80 rounded-t transition-all" style={{ height: `${(m.expense / maxTrend) * 100}%` }} title={`Chiqim: ${fmt(m.expense)}`} />
+                        <div className="w-3 bg-success/80 rounded-t transition-all" style={{ height: `${(m.income / maxTrend) * 100}%` }} title={`Kirim: ${fmt(m.income)}`} />
+                        <div className="w-3 bg-destructive/60 rounded-t transition-all" style={{ height: `${(m.expense / maxTrend) * 100}%` }} title={`Chiqim: ${fmt(m.expense)}`} />
                       </div>
                       <span className="text-xs text-muted-foreground">{m.month}</span>
                     </div>
                   ))}
                 </div>
                 <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1"><div className="w-3 h-3 rounded bg-emerald-500/80" /> Kirim</span>
-                  <span className="flex items-center gap-1"><div className="w-3 h-3 rounded bg-red-400/80" /> Chiqim</span>
+                  <span className="flex items-center gap-1"><div className="w-3 h-3 rounded bg-success/80" /> Kirim</span>
+                  <span className="flex items-center gap-1"><div className="w-3 h-3 rounded bg-destructive/60" /> Chiqim</span>
                 </div>
               </div>
 
@@ -222,7 +222,7 @@ const Finance = () => {
                   <div className="space-y-3">
                     {expenseByCategory.map(([cat, amount], i) => {
                       const pct = totalExpense ? Math.round(amount / totalExpense * 100) : 0;
-                      const colors = ['bg-red-500', 'bg-amber-500', 'bg-blue-500', 'bg-purple-500', 'bg-emerald-500', 'bg-pink-500', 'bg-cyan-500'];
+                      const colors = ['bg-destructive', 'bg-warning', 'bg-primary', 'bg-accent', 'bg-success', 'bg-destructive', 'bg-primary'];
                       return (
                         <div key={cat}>
                           <div className="flex items-center justify-between text-sm mb-1">
@@ -249,7 +249,7 @@ const Finance = () => {
                     {incomeByGroup.map(([name, amount]) => (
                       <div key={name} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
                         <span className="text-sm font-medium text-foreground">{name}</span>
-                        <span className="text-sm font-bold text-emerald-600">{fmt(amount)}</span>
+                        <span className="text-sm font-bold text-success">{fmt(amount)}</span>
                       </div>
                     ))}
                   </div>
@@ -268,7 +268,7 @@ const Finance = () => {
                       return (
                         <div key={tx.key} className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
                           <div className="flex items-center gap-3">
-                            <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${tx.type === 'kirim' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'}`}>
+                            <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${tx.type === 'kirim' ? 'bg-success/10 text-success' : 'bg-destructive/10 text-destructive'}`}>
                               {tx.type === 'kirim' ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />}
                             </div>
                             <div>
@@ -276,7 +276,7 @@ const Finance = () => {
                               <p className="text-xs text-muted-foreground">{tx.date} • {tx.description || tx.category}</p>
                             </div>
                           </div>
-                          <span className={`text-sm font-bold ${tx.type === 'kirim' ? 'text-emerald-600' : 'text-red-500'}`}>
+                          <span className={`text-sm font-bold ${tx.type === 'kirim' ? 'text-success' : 'text-destructive'}`}>
                             {tx.type === 'kirim' ? '+' : '-'}{fmt(tx.amount)}
                           </span>
                         </div>
@@ -346,7 +346,7 @@ const Finance = () => {
                           <td className="px-4 py-3 text-muted-foreground">{p.date}</td>
                           <td className="px-4 py-3 font-medium text-foreground">{student?.name || '—'}</td>
                           <td className="px-4 py-3 text-muted-foreground">{group?.name || '—'}</td>
-                          <td className="px-4 py-3 text-right font-bold text-emerald-600">+{fmt(p.amount)}</td>
+                          <td className="px-4 py-3 text-right font-bold text-success">+{fmt(p.amount)}</td>
                           <td className="px-4 py-3 text-center">
                             <span className="px-2 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground">
                               {paymentMethods.find(m => m.value === p.method)?.label}
@@ -416,7 +416,7 @@ const Finance = () => {
                       <tr key={e.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
                         <td className="px-4 py-3 text-muted-foreground">{e.date}</td>
                         <td className="px-4 py-3 font-medium text-foreground">{e.category}</td>
-                        <td className="px-4 py-3 text-right font-bold text-red-500">-{fmt(e.amount)}</td>
+                        <td className="px-4 py-3 text-right font-bold text-destructive">-{fmt(e.amount)}</td>
                         <td className="px-4 py-3 text-center">
                           <span className="px-2 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground">
                             {paymentMethods.find(m => m.value === e.method)?.label}
@@ -448,10 +448,10 @@ const Finance = () => {
               </div>
             </div>
             <div className="bg-card border border-border rounded-xl p-4 mb-4 flex items-center gap-4">
-              <div className="h-12 w-12 rounded-xl bg-red-500/10 flex items-center justify-center"><CreditCard className="h-6 w-6 text-red-500" /></div>
+              <div className="h-12 w-12 rounded-xl bg-destructive/10 flex items-center justify-center"><CreditCard className="h-6 w-6 text-destructive" /></div>
               <div>
                 <p className="text-sm text-muted-foreground">Umumiy qarzdorlik</p>
-                <p className="text-xl font-bold text-red-500">{fmt(totalDebt)}</p>
+                <p className="text-xl font-bold text-destructive">{fmt(totalDebt)}</p>
               </div>
               <div className="ml-auto text-right">
                 <p className="text-sm text-muted-foreground">Qarzdorlar soni</p>
@@ -468,7 +468,7 @@ const Finance = () => {
                     <motion.div key={d.id} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
                       className="flex items-center justify-between p-4 bg-card border border-border rounded-xl hover:bg-muted/30 transition-colors">
                       <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-full bg-red-500/10 flex items-center justify-center text-red-500 font-bold text-sm">
+                        <div className="h-10 w-10 rounded-full bg-destructive/10 flex items-center justify-center text-destructive font-bold text-sm">
                           {d.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                         </div>
                         <div>
@@ -477,7 +477,7 @@ const Finance = () => {
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-red-500">{fmt(Math.abs(d.balance))}</p>
+                        <p className="font-bold text-destructive">{fmt(Math.abs(d.balance))}</p>
                         <p className="text-xs text-muted-foreground">qarzdor</p>
                       </div>
                     </motion.div>
@@ -497,18 +497,18 @@ const Finance = () => {
               <div className="bg-card border border-border rounded-xl p-5">
                 <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2"><Receipt className="h-4 w-4 text-primary" /> Oylik xulosasi</h3>
                 <div className="space-y-3">
-                  <div className="flex justify-between items-center p-3 bg-emerald-500/5 rounded-lg">
+                  <div className="flex justify-between items-center p-3 bg-success/5 rounded-lg">
                     <span className="text-sm text-foreground">Jami kirimlar</span>
-                    <span className="font-bold text-emerald-600">{fmt(totalIncome)}</span>
+                    <span className="font-bold text-success">{fmt(totalIncome)}</span>
                   </div>
-                  <div className="flex justify-between items-center p-3 bg-red-500/5 rounded-lg">
+                  <div className="flex justify-between items-center p-3 bg-destructive/5 rounded-lg">
                     <span className="text-sm text-foreground">Jami chiqimlar</span>
-                    <span className="font-bold text-red-500">{fmt(totalExpense)}</span>
+                    <span className="font-bold text-destructive">{fmt(totalExpense)}</span>
                   </div>
                   <div className="h-px bg-border" />
-                  <div className={`flex justify-between items-center p-3 rounded-lg ${profit >= 0 ? 'bg-primary/5' : 'bg-red-500/5'}`}>
+                  <div className={`flex justify-between items-center p-3 rounded-lg ${profit >= 0 ? 'bg-primary/5' : 'bg-destructive/5'}`}>
                     <span className="text-sm font-semibold text-foreground">Sof foyda</span>
-                    <span className={`font-bold text-lg ${profit >= 0 ? 'text-primary' : 'text-red-500'}`}>{fmt(profit)}</span>
+                    <span className={`font-bold text-lg ${profit >= 0 ? 'text-primary' : 'text-destructive'}`}>{fmt(profit)}</span>
                   </div>
                 </div>
               </div>
@@ -523,8 +523,8 @@ const Finance = () => {
                     <div key={m.value} className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/30 transition-colors mb-2">
                       <span className="text-sm text-foreground">{m.label}</span>
                       <div className="text-right text-xs">
-                        <span className="text-emerald-600 mr-3">+{fmt(mIncome)}</span>
-                        <span className="text-red-500">-{fmt(mExpense)}</span>
+                        <span className="text-success mr-3">+{fmt(mIncome)}</span>
+                        <span className="text-destructive">-{fmt(mExpense)}</span>
                       </div>
                     </div>
                   );
@@ -556,7 +556,7 @@ const Finance = () => {
                             <td className="px-4 py-3 text-center">{tGroups.length}</td>
                             <td className="px-4 py-3 text-center">{tStudents.length}</td>
                             <td className="px-4 py-3 text-center">
-                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${t.status === 'faol' ? 'bg-emerald-500/10 text-emerald-600' : 'bg-amber-500/10 text-amber-600'}`}>
+                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${t.status === 'faol' ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'}`}>
                                 {t.status === 'faol' ? 'Faol' : 'Dam olishda'}
                               </span>
                             </td>
