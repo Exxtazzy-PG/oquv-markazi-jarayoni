@@ -181,10 +181,10 @@ const LessonSchedule = () => {
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
             {[
               { label: 'Mavzular', value: `${completedTopics}/${groupTopics.length}`, icon: BookOpen, color: 'text-primary bg-primary/10' },
-              { label: 'Vazifalar', value: `${hwSubmitted}/${hwTotal || 0}`, icon: Home, color: 'text-violet-500 bg-violet-500/10' },
-              { label: 'Testlar', value: groupTests.length, icon: FileText, color: 'text-blue-500 bg-blue-500/10' },
-              { label: "O'rtacha test", value: avgTestScore, icon: TrendingUp, color: 'text-amber-500 bg-amber-500/10' },
-              { label: "Nazorat o'rtacha", value: avgControlScore, icon: Trophy, color: 'text-emerald-500 bg-emerald-500/10' },
+              { label: 'Vazifalar', value: `${hwSubmitted}/${hwTotal || 0}`, icon: Home, color: 'text-accent-foreground bg-accent/10' },
+              { label: 'Testlar', value: groupTests.length, icon: FileText, color: 'text-primary bg-primary/10' },
+              { label: "O'rtacha test", value: avgTestScore, icon: TrendingUp, color: 'text-warning bg-warning/10' },
+              { label: "Nazorat o'rtacha", value: avgControlScore, icon: Trophy, color: 'text-success bg-success/10' },
             ].map((s, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} className="bg-card border border-border rounded-xl p-4">
                 <div className="flex items-center gap-3">
@@ -252,8 +252,8 @@ const LessonSchedule = () => {
                   {groupTopics.length === 0 && <p className="text-center text-muted-foreground py-8">Hali mavzu qo'shilmagan</p>}
                   {groupTopics.map((topic, i) => (
                     <motion.div key={topic.id} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
-                      className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${topic.completed ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-card border-border'}`}>
-                      <button onClick={() => toggleTopic(topic.id)} className={`h-6 w-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${topic.completed ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-muted-foreground/30 hover:border-primary'}`}>
+                      className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${topic.completed ? 'bg-success/5 border-emerald-500/20' : 'bg-card border-border'}`}>
+                      <button onClick={() => toggleTopic(topic.id)} className={`h-6 w-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${topic.completed ? 'bg-success border-emerald-500 text-white' : 'border-muted-foreground/30 hover:border-primary'}`}>
                         {topic.completed && <Check className="h-3.5 w-3.5" />}
                       </button>
                       <div className="text-xs text-muted-foreground shrink-0 w-24">{topic.date}</div>
@@ -389,7 +389,7 @@ const LessonSchedule = () => {
                           const hwPercent = groupHomeworks.length ? Math.round(hwDone / groupHomeworks.length * 100) : 0;
                           const overall = Math.round((avgTest * 0.4 + avgControl * 0.4 + hwPercent * 0.2));
                           const grade = overall >= 85 ? "A'lo" : overall >= 70 ? 'Yaxshi' : overall >= 55 ? 'Qoniqarli' : 'Yomon';
-                          const gradeColor = overall >= 85 ? 'text-emerald-600 bg-emerald-500/10' : overall >= 70 ? 'text-blue-600 bg-blue-500/10' : overall >= 55 ? 'text-amber-600 bg-amber-500/10' : 'text-red-600 bg-red-500/10';
+                          const gradeColor = overall >= 85 ? 'text-success bg-success/10' : overall >= 70 ? 'text-primary bg-primary/10' : overall >= 55 ? 'text-warning bg-warning/10' : 'text-red-600 bg-destructive/10';
                           return (
                             <tr key={student.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
                               <td className="px-4 py-3 text-muted-foreground">{i + 1}</td>
@@ -433,7 +433,7 @@ function HomeworkCard({ homework, students, onUpdateSubmission, onDelete }: {
       <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/30 transition-colors" onClick={() => setExpanded(!expanded)}>
         <div className="flex items-center gap-3">
           {expanded ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
-          <Home className="h-5 w-5 text-violet-500" />
+          <Home className="h-5 w-5 text-accent-foreground" />
           <div>
             <p className="font-medium text-foreground">{homework.title}</p>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -447,8 +447,8 @@ function HomeworkCard({ homework, students, onUpdateSubmission, onDelete }: {
         </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 text-xs">
-            <span className="flex items-center gap-1 text-emerald-600"><CheckCircle2 className="h-3.5 w-3.5" /> {submitted}</span>
-            {late > 0 && <span className="flex items-center gap-1 text-amber-600"><AlertCircle className="h-3.5 w-3.5" /> {late}</span>}
+            <span className="flex items-center gap-1 text-success"><CheckCircle2 className="h-3.5 w-3.5" /> {submitted}</span>
+            {late > 0 && <span className="flex items-center gap-1 text-warning"><AlertCircle className="h-3.5 w-3.5" /> {late}</span>}
             <span className="text-muted-foreground">/ {students.length}</span>
           </div>
           <button onClick={e => { e.stopPropagation(); onDelete(homework.id); }} className="p-1.5 rounded-lg hover:bg-destructive/10 text-destructive"><Trash2 className="h-4 w-4" /></button>
@@ -486,7 +486,7 @@ function HomeworkCard({ homework, students, onUpdateSubmission, onDelete }: {
                               <button key={st} onClick={() => onUpdateSubmission(homework.id, s.id, st, score, comment)}
                                 className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
                                   status === st
-                                    ? st === 'topshirgan' ? 'bg-emerald-500 text-white' : st === 'kechikkan' ? 'bg-amber-500 text-white' : 'bg-red-500 text-white'
+                                    ? st === 'topshirgan' ? 'bg-success text-white' : st === 'kechikkan' ? 'bg-warning text-white' : 'bg-destructive text-white'
                                     : 'bg-muted text-muted-foreground hover:bg-muted/80'
                                 }`}>
                                 {st === 'topshirgan' ? '✓' : st === 'kechikkan' ? '⏰' : '✗'}
@@ -529,7 +529,7 @@ function TestCard({ test, students, onUpdateScore, onDelete }: {
       <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/30 transition-colors" onClick={() => setExpanded(!expanded)}>
         <div className="flex items-center gap-3">
           {expanded ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
-          <FileText className="h-5 w-5 text-blue-500" />
+          <FileText className="h-5 w-5 text-primary" />
           <div>
             <p className="font-medium text-foreground">{test.title}</p>
             <p className="text-xs text-muted-foreground">Hafta: {test.weekStart} • Maks: {test.maxScore} ball</p>
@@ -582,7 +582,7 @@ function ControlCard({ control, students, onUpdateScore, onDelete }: {
       <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/30 transition-colors" onClick={() => setExpanded(!expanded)}>
         <div className="flex items-center gap-3">
           {expanded ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
-          <ClipboardCheck className="h-5 w-5 text-amber-500" />
+          <ClipboardCheck className="h-5 w-5 text-warning" />
           <div>
             <p className="font-medium text-foreground">{control.title}</p>
             <p className="text-xs text-muted-foreground">Oy: {control.month} • Maks: {control.maxScore} ball</p>
