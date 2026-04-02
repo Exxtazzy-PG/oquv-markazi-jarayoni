@@ -208,8 +208,8 @@ const Finance = () => {
                   ))}
                 </div>
                 <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1"><div className="w-3 h-3 rounded bg-emerald-500/80" /> Kirim</span>
-                  <span className="flex items-center gap-1"><div className="w-3 h-3 rounded bg-red-400/80" /> Chiqim</span>
+                  <span className="flex items-center gap-1"><div className="w-3 h-3 rounded bg-success/80" /> Kirim</span>
+                  <span className="flex items-center gap-1"><div className="w-3 h-3 rounded bg-destructive/60" /> Chiqim</span>
                 </div>
               </div>
 
