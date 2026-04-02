@@ -200,8 +200,8 @@ const Finance = () => {
                   {monthlyTrend.map((m, i) => (
                     <div key={i} className="flex-1 flex flex-col items-center gap-1">
                       <div className="flex gap-1 items-end w-full justify-center" style={{ height: '120px' }}>
-                        <div className="w-3 bg-emerald-500/80 rounded-t transition-all" style={{ height: `${(m.income / maxTrend) * 100}%` }} title={`Kirim: ${fmt(m.income)}`} />
-                        <div className="w-3 bg-red-400/80 rounded-t transition-all" style={{ height: `${(m.expense / maxTrend) * 100}%` }} title={`Chiqim: ${fmt(m.expense)}`} />
+                        <div className="w-3 bg-success/80 rounded-t transition-all" style={{ height: `${(m.income / maxTrend) * 100}%` }} title={`Kirim: ${fmt(m.income)}`} />
+                        <div className="w-3 bg-destructive/60 rounded-t transition-all" style={{ height: `${(m.expense / maxTrend) * 100}%` }} title={`Chiqim: ${fmt(m.expense)}`} />
                       </div>
                       <span className="text-xs text-muted-foreground">{m.month}</span>
                     </div>
