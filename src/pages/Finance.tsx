@@ -161,10 +161,10 @@ const Finance = () => {
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {[
-          { label: 'Jami kirim', value: fmt(totalIncome), icon: TrendingUp, color: 'text-emerald-500 bg-emerald-500/10', change: '+12%' },
-          { label: 'Jami chiqim', value: fmt(totalExpense), icon: TrendingDown, color: 'text-red-500 bg-red-500/10', change: '-5%' },
-          { label: 'Foyda', value: fmt(profit), icon: DollarSign, color: profit >= 0 ? 'text-primary bg-primary/10' : 'text-red-500 bg-red-500/10', change: profit >= 0 ? '+' : '' },
-          { label: 'Qarzdorlik', value: fmt(totalDebt), icon: CreditCard, color: 'text-amber-500 bg-amber-500/10', change: `${debtors.length} ta` },
+          { label: 'Jami kirim', value: fmt(totalIncome), icon: TrendingUp, color: 'text-success bg-success/10', change: '+12%' },
+          { label: 'Jami chiqim', value: fmt(totalExpense), icon: TrendingDown, color: 'text-destructive bg-destructive/10', change: '-5%' },
+          { label: 'Foyda', value: fmt(profit), icon: DollarSign, color: profit >= 0 ? 'text-primary bg-primary/10' : 'text-destructive bg-destructive/10', change: profit >= 0 ? '+' : '' },
+          { label: 'Qarzdorlik', value: fmt(totalDebt), icon: CreditCard, color: 'text-warning bg-warning/10', change: `${debtors.length} ta` },
         ].map((s, i) => (
           <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
             className="bg-card border border-border rounded-xl p-4">
